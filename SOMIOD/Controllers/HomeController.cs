@@ -10,9 +10,10 @@ namespace SOMIOD.Controllers
     {
         public ActionResult Index()
         {
-            ViewBag.Title = "Home Page";
+            ViewBag.Title = "Home Page teste";
 
             return View();
         }
+        
     }
 }
