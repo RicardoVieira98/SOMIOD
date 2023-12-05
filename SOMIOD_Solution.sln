@@ -5,6 +5,12 @@ VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SOMIOD", "SOMIOD\SOMIOD.csproj", "{9D8BBBDD-F2C2-451D-B6C4-C4C0F3FB8DA1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{696364AD-63D4-4B09-9424-F2B6117AE2F9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Aplications", "Aplications", "{A733A6F2-BF95-4466-B624-9B0A1D16B5A6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightApplicationExample", "LightApplicationExample\LightApplicationExample.csproj", "{82EFF348-4006-4878-80A5-B18FEE77876A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,9 +21,17 @@ Global
 		{9D8BBBDD-F2C2-451D-B6C4-C4C0F3FB8DA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D8BBBDD-F2C2-451D-B6C4-C4C0F3FB8DA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D8BBBDD-F2C2-451D-B6C4-C4C0F3FB8DA1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82EFF348-4006-4878-80A5-B18FEE77876A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82EFF348-4006-4878-80A5-B18FEE77876A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82EFF348-4006-4878-80A5-B18FEE77876A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82EFF348-4006-4878-80A5-B18FEE77876A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9D8BBBDD-F2C2-451D-B6C4-C4C0F3FB8DA1} = {696364AD-63D4-4B09-9424-F2B6117AE2F9}
+		{82EFF348-4006-4878-80A5-B18FEE77876A} = {A733A6F2-BF95-4466-B624-9B0A1D16B5A6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {09D2B410-4CA5-4E02-AF62-A61C6F75A1FB}
