@@ -16,7 +16,7 @@ namespace SOMIOD.Controllers
             return Ok();
         }
 
-        [Route("somiod")]
+        [Route("")]
         [HttpPost]
         public IHttpActionResult PostApplication([FromBody] XElement data)
         {
@@ -30,7 +30,7 @@ namespace SOMIOD.Controllers
             return Ok();
         }
 
-        [Route("somiod/{application}")]
+        [Route("")]
         [HttpPost]
         public IHttpActionResult PostContainer(string application, [FromBody] XElement data)
         {
@@ -44,7 +44,7 @@ namespace SOMIOD.Controllers
             return Ok();
         }
 
-        [Route("somiod/{application}/{container}")]
+        [Route("")]
         [HttpPost]
         public IHttpActionResult PostSubscription(string application,string container, [FromBody] XElement data)
         {
@@ -59,7 +59,7 @@ namespace SOMIOD.Controllers
             return Ok();
         }
 
-        [Route("somiod/{application}/{container}")]
+        [Route("")]
         [HttpPost]
         public IHttpActionResult PostData(string application, string container, [FromBody] XElement data)
         {
