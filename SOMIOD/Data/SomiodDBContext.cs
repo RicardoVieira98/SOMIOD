@@ -13,7 +13,10 @@ namespace SOMIOD.Data
         public SomiodDBContext(string connectionString) : base(connectionString)
         {
         }
+
         public DbSet<Application> Applications { get; set; }
+
+        public DbSet<Container> Containers { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
