@@ -12,12 +12,13 @@ using System.Web.Configuration;
 using System.Web.Http;
 using System.Xml;
 using System.Xml.Linq;
+using WebGrease.Css.Extensions;
 
 namespace SOMIOD.Controllers
 {
     public class ApplicationController : ApiController
     {
-        private readonly string LocalBDConnectionString = WebConfigurationManager.ConnectionStrings["LocalInstanceBD"].ConnectionString;
+        private readonly string LocalBDConnectionString;
 
         public ApplicationController()
         {
@@ -25,11 +26,11 @@ namespace SOMIOD.Controllers
                 WebConfigurationManager.ConnectionStrings["LocalInstanceBD"].ConnectionString : "";
         }
 
-        [HttpGet]
-        [Route("somiod")]
-        public IHttpActionResult GetApplication(string name)
+        [HttpGet]   
+        [Route("somiod/{applicationName}")]
+        public IHttpActionResult GetApplication(string applicationName)
         {
-            if (String.IsNullOrEmpty(name))
+            if (String.IsNullOrEmpty(applicationName))
             {
                 return BadRequest();
             }
@@ -37,39 +38,39 @@ namespace SOMIOD.Controllers
             Application dbApp = new Application();
 
             #region  retrieve Application using ADO.NET
-            //using (SqlConnection sqlConnection = new SqlConnection())
-            //{
-            //    string cmdText = $"SELECT * FROM Applications WHERE Name = @name;";
-            //    sqlConnection.ConnectionString = LocalBDConnectionString;
-            //    sqlConnection.Open();
-            //    SqlCommand cmd = new SqlCommand(cmdText, sqlConnection);
-            //    cmd.Parameters.Add(new SqlParameter("name", name));
+            using (SqlConnection sqlConnection = new SqlConnection())
+            {
+                string cmdText = $"SELECT * FROM Application WHERE Name = @name;";
+                sqlConnection.ConnectionString = LocalBDConnectionString;
+                sqlConnection.Open();
+                SqlCommand cmd = new SqlCommand(cmdText, sqlConnection);
+                cmd.Parameters.Add(new SqlParameter("name", applicationName));
 
-            //    using (SqlDataReader reader = cmd.ExecuteReader())
-            //    {
-            //        while (reader.Read())
-            //        {
-            //            dbApp.CreatedDate = (DateTime)reader[0];
-            //            dbApp.Id = (int)reader[1];
-            //            dbApp.Name = (string)reader[2];
-            //            //etc...
-            //        }
-            //    }
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        dbApp.Id = (int)reader[0];
+                        dbApp.Name = (string)reader[1];
+                        dbApp.CreatedDate = (DateTime)reader[2];
+                    }
+                }
 
-            //    sqlConnection.Dispose();
-            //    sqlConnection.Close();
+                sqlConnection.Dispose();
+                sqlConnection.Close();
 
-            //}
+            }
             #endregion
 
             #region retrieve Application using Entity Framework
             SomiodDBContext context = new SomiodDBContext(LocalBDConnectionString);
-            var result = context.Applications.FirstOrDefault(x => x.Name.ToLower() == name.ToLower());
+            var result = context.Applications.FirstOrDefault(x => x.Name.ToLower() == applicationName.ToLower());
             if (result is null)
             {
                 return NotFound();
             }
             dbApp = result;
+            context.SaveChanges();
             #endregion
 
             return Ok(dbApp);
@@ -88,28 +89,29 @@ namespace SOMIOD.Controllers
             };
 
             #region  insert Application using ADO.NET
-            //using (SqlConnection sqlConnection = new SqlConnection())
-            //{
-            //    string cmdText = $"INSERT INTO Applications (Name, CreatedDate) VALUES (@name,@createddate);";
-            //    sqlConnection.ConnectionString = LocalBDConnectionString;
-            //    sqlConnection.Open();
-            //    SqlCommand cmd = new SqlCommand(cmdText, sqlConnection);
-            //    cmd.Parameters.Add(new SqlParameter("name", dbApp.Name));
-            //    cmd.Parameters.Add(new SqlParameter("createddate", dbApp.CreatedDate));
-            //    var rowModified = cmd.ExecuteNonQuery();
+            using (SqlConnection sqlConnection = new SqlConnection())
+            {
+                string cmdText = $"INSERT INTO Applications (Name, CreatedDate) VALUES (@name,@createddate);";
+                sqlConnection.ConnectionString = LocalBDConnectionString;
+                sqlConnection.Open();
+                SqlCommand cmd = new SqlCommand(cmdText, sqlConnection);
+                cmd.Parameters.Add(new SqlParameter("name", dbApp.Name));
+                cmd.Parameters.Add(new SqlParameter("createddate", dbApp.CreatedDate));
+                var rowModified = cmd.ExecuteNonQuery();
 
-            //    if (rowModified < 1) return Content(HttpStatusCode.InternalServerError, "Error Inserting New Application");
+                if (rowModified < 1) return Content(HttpStatusCode.InternalServerError, "Error Inserting New Application");
 
-            //    sqlConnection.Dispose();
-            //    sqlConnection.Close();
+                sqlConnection.Dispose();
+                sqlConnection.Close();
 
-            //}
+            }
             #endregion
 
             #region insert Application using Entity Framework
             SomiodDBContext context = new SomiodDBContext(LocalBDConnectionString);
             var entity = context.Applications.Add(dbApp);
             if(entity is null) return Content(HttpStatusCode.InternalServerError, "Error Inserting new Application");
+            context.SaveChanges();
             #endregion
 
             return Ok();
@@ -151,37 +153,38 @@ namespace SOMIOD.Controllers
             SomiodDBContext context = new SomiodDBContext(LocalBDConnectionString);
             var entity = context.Applications.Add(dbApp);
             if (entity is null) return Content(HttpStatusCode.InternalServerError, "Error Updating Application");
+            context.SaveChanges();
             #endregion
 
             return Ok();
         }
 
         [HttpDelete]
-        [Route("somiod")]
-        public IHttpActionResult DeleteApplication(string id)
+        [Route("somiod/{applicationId}")]
+        public IHttpActionResult DeleteApplication(string applicationId)
         {
-            if (String.IsNullOrEmpty(id)) { return BadRequest(); }
+            if (String.IsNullOrEmpty(applicationId)) { return BadRequest(); }
 
             #region  deleting Application using ADO.NET
-            //using (SqlConnection sqlConnection = new SqlConnection())
-            //{
-            //    string cmdText = $"DELETE FROM Application WHERE Id = @id;";
-            //    sqlConnection.ConnectionString = LocalBDConnectionString;
-            //    sqlConnection.Open();
-            //    SqlCommand cmd = new SqlCommand(cmdText, sqlConnection);
-            //    cmd.Parameters.Add(new SqlParameter("id", id));
-            //    var rowModified = cmd.ExecuteNonQuery();
+            using (SqlConnection sqlConnection = new SqlConnection())
+            {
+                string cmdText = $"DELETE FROM Application WHERE Id = @id;";
+                sqlConnection.ConnectionString = LocalBDConnectionString;
+                sqlConnection.Open();
+                SqlCommand cmd = new SqlCommand(cmdText, sqlConnection);
+                cmd.Parameters.Add(new SqlParameter("id", applicationId));
+                var rowModified = cmd.ExecuteNonQuery();
 
-            //    if (rowModified < 1) return NotFound();
+                if (rowModified < 1) return NotFound();
 
-            //    sqlConnection.Dispose();
-            //    sqlConnection.Close();
-            //}
+                sqlConnection.Dispose();
+                sqlConnection.Close();
+            }
             #endregion
 
             #region deleting Application using Entity Framework
             SomiodDBContext context = new SomiodDBContext(LocalBDConnectionString);
-            var entity = context.Applications.FirstOrDefault(x => x.Id == Int32.Parse(id));
+            var entity = context.Applications.FirstOrDefault(x => x.Id == Int32.Parse(applicationId));
             
             if(entity is null)
             {
@@ -190,6 +193,7 @@ namespace SOMIOD.Controllers
 
             var entityRemoved = context.Applications.Remove(entity);
             if (entityRemoved is null) return Content(HttpStatusCode.InternalServerError, "Error Deleting Application");
+            context.SaveChanges();
             #endregion
 
             return Ok();
