@@ -5,12 +5,14 @@ using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
 using System.Linq;
 using System.Web;
+using System.Web.Configuration;
 
 namespace SOMIOD.Data
 {
     public class SomiodDBContext : DbContext
     {
-        public SomiodDBContext(string connectionString) : base(connectionString)
+        private static readonly string _connectionString = WebConfigurationManager.ConnectionStrings["LocalInstanceBD"].ConnectionString;
+        public SomiodDBContext() : base(_connectionString)
         {
         }
         public DbSet<Application> Applications { get; set; }
