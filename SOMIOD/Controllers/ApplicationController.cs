@@ -37,30 +37,30 @@ namespace SOMIOD.Controllers
 
             Application dbApp = new Application();
 
-            #region  retrieve Application using ADO.NET
-            using (SqlConnection sqlConnection = new SqlConnection())
-            {
-                string cmdText = $"SELECT * FROM Application WHERE Name = @name;";
-                sqlConnection.ConnectionString = LocalBDConnectionString;
-                sqlConnection.Open();
-                SqlCommand cmd = new SqlCommand(cmdText, sqlConnection);
-                cmd.Parameters.Add(new SqlParameter("name", applicationName));
+            //#region  retrieve Application using ADO.NET
+            //using (SqlConnection sqlConnection = new SqlConnection())
+            //{
+            //    string cmdText = $"SELECT * FROM Application WHERE Name = @name;";
+            //    sqlConnection.ConnectionString = LocalBDConnectionString;
+            //    sqlConnection.Open();
+            //    SqlCommand cmd = new SqlCommand(cmdText, sqlConnection);
+            //    cmd.Parameters.Add(new SqlParameter("name", applicationName));
 
-                using (SqlDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        dbApp.Id = (int)reader[0];
-                        dbApp.Name = (string)reader[1];
-                        dbApp.CreatedDate = (DateTime)reader[2];
-                    }
-                }
+            //    using (SqlDataReader reader = cmd.ExecuteReader())
+            //    {
+            //        while (reader.Read())
+            //        {
+            //            dbApp.Id = (int)reader[0];
+            //            dbApp.Name = (string)reader[1];
+            //            dbApp.CreatedDate = (DateTime)reader[2];
+            //        }
+            //    }
 
-                sqlConnection.Dispose();
-                sqlConnection.Close();
+            //    sqlConnection.Dispose();
+            //    sqlConnection.Close();
 
-            }
-            #endregion
+            //}
+            //#endregion
 
             #region retrieve Application using Entity Framework
             SomiodDBContext context = new SomiodDBContext(LocalBDConnectionString);
