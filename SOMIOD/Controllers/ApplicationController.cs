@@ -1,4 +1,5 @@
 ﻿using SOMIOD.Data;
+using SOMIOD.Library;
 using SOMIOD.Models;
 using System;
 using System.Collections.Generic;
@@ -29,22 +30,31 @@ namespace SOMIOD.Controllers
         [Route("somiod/{applicationName}")]
         public IHttpActionResult GetApplication(string applicationName)
         {
-            if (String.IsNullOrEmpty(applicationName))
-            {
-                return BadRequest();
-            }
+            if (String.IsNullOrEmpty(applicationName)) return BadRequest();
 
             Application dbApp = new Application();
 
             var result = _context.Applications.FirstOrDefault(x => x.Name.ToLower() == applicationName.ToLower());
-            if (result is null)
-            {
-                return NotFound();
-            }
+            if (result is null) return NotFound();
             dbApp = result;
             _context.SaveChanges();
 
             return Ok(dbApp);
+        }
+
+        [HttpGet]
+        [Route("somiod")]
+        public IHttpActionResult GetAllApplications()
+        {
+            if (Request.Headers.Count() < 1 || 
+                Request.Headers.Any(x => x.Key == "somiod-discover") ||
+                !string.Equals(Request.Headers.First(x => x.Key == "somiod-discover").Value.FirstOrDefault(),Library.Headers.Application.ToString())) 
+            {
+                return BadRequest();
+            }
+
+            var applications = _context.Applications.Take(_context.Applications.Count());
+            return Ok(applications);
         }
 
         [HttpPost]
