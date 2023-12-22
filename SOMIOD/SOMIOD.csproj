@@ -129,6 +129,7 @@
     <Compile Include="Controllers\ApplicationController.cs" />
     <Compile Include="Controllers\DataController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\SubscriptionController.cs" />
     <Compile Include="Data\SomiodDBContext.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -153,6 +154,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Views\Data\" />
+    <Folder Include="Views\Subscription\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

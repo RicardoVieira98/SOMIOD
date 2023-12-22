@@ -16,8 +16,9 @@ namespace SOMIOD.Data
         {
         }
         public DbSet<Application> Applications { get; set; }
-        public DbSet<SOMIOD.Models.Container> Containers { get; set; }
-        public DbSet<SOMIOD.Models.Data> Datas { get; set; }
+        public DbSet<Container> Containers { get; set; }
+        public DbSet<Models.Data> Datas { get; set; }
+        public DbSet<Subscription> Subscriptions { get; set; }
 
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
