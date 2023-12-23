@@ -32,23 +32,21 @@ namespace SOMIOD.Controllers
         {
             if (String.IsNullOrEmpty(applicationName)) return BadRequest();
 
-            Application dbApp = new Application();
-
             var result = _context.Applications.FirstOrDefault(x => x.Name.ToLower() == applicationName.ToLower());
             if (result is null) return NotFound();
-            dbApp = result;
+
             _context.SaveChanges();
 
-            return Ok(dbApp);
+            return Ok(result);
         }
 
         [HttpGet]
         [Route("somiod")]
-        public IHttpActionResult GetAllApplications()
+        public IHttpActionResult GetApplications()
         {
             if (Request.Headers.Count() < 1 || 
                 Request.Headers.Any(x => x.Key == "somiod-discover") ||
-                !string.Equals(Request.Headers.First(x => x.Key == "somiod-discover").Value.FirstOrDefault(),Library.Headers.Application.ToString())) 
+                !string.Equals(Request.Headers.First(x => x.Key == "somiod-discover").Value.FirstOrDefault(),Headers.Application.ToString())) 
             {
                 return BadRequest();
             }
@@ -82,15 +80,18 @@ namespace SOMIOD.Controllers
         {
             if (data == null) { return BadRequest(); }
 
-            var dbApp = new Application()
+            var app = new Application()
             {
                 Id = int.Parse(data.SelectSingleNode("/application/@ID")?.InnerText),
                 Name = data.SelectSingleNode("/application/@NAME")?.InnerText,
                 CreatedDate = DateTime.Parse(data.SelectSingleNode("/application/@CREATEDDATE")?.InnerText)
             };
 
-            var entity = _context.Applications.Add(dbApp);
-            if (entity is null) return Content(HttpStatusCode.InternalServerError, "Error Updating Application");
+            var dbApp = _context.Applications.SingleOrDefault(x => x.Id == app.Id);
+            if (dbApp is null) return BadRequest();
+
+            dbApp.Name = app.Name;
+            dbApp.CreatedDate = app.CreatedDate;
             _context.SaveChanges();
 
             return Ok();
@@ -98,11 +99,11 @@ namespace SOMIOD.Controllers
 
         [HttpDelete]
         [Route("somiod/{applicationId}")]
-        public IHttpActionResult DeleteApplication(string applicationId)
+        public IHttpActionResult DeleteApplication(string applicationName)
         {
-            if (String.IsNullOrEmpty(applicationId)) { return BadRequest(); }
+            if (String.IsNullOrEmpty(applicationName)) { return BadRequest(); }
 
-            var entity = _context.Applications.FirstOrDefault(x => x.Id == Int32.Parse(applicationId));
+            var entity = _context.Applications.FirstOrDefault(x => string.Equals(x.Name,applicationName));
             
             if(entity is null)
             {

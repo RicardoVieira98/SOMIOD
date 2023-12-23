@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace SOMIOD.Library
 {
-    public enum Headers
+    public enum Events
     {
-        Application,
-        Container,
-        Data,
-        Subscription
+        None = 0,
+        In = 1,
+        Out = 2,
+        Both = 3
     }
 }
