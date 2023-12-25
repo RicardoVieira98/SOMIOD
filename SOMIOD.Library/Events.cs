@@ -9,8 +9,8 @@ namespace SOMIOD.Library
     public enum Events
     {
         None = 0,
-        In = 1,
-        Out = 2,
+        Creation = 1,
+        Deletion = 2,
         Both = 3
     }
 }

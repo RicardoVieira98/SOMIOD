@@ -27,7 +27,9 @@ namespace SOMIOD.Controllers
         {
             try
             {
-                if (!DoesApplicationExist(applicationName) || !DoesContainerExist(containerName))
+                if (Shared.AreArgsEmpty(new List<string> { applicationName, containerName, subscriptionName }) ||
+                    !Shared.DoesApplicationExist(_context, applicationName) || 
+                    !Shared.DoesContainerExist(_context,containerName))
                 {
                     return BadRequest();
                 }
@@ -53,7 +55,9 @@ namespace SOMIOD.Controllers
         {
             try
             {
-                if (!DoesApplicationExist(applicationName) || !DoesContainerExist(containerName))
+                if (Shared.AreArgsEmpty(new List<string> { applicationName, containerName }) || 
+                    !Shared.DoesApplicationExist(_context,applicationName) || 
+                    !Shared.DoesContainerExist(_context, containerName))
                 {
                     return BadRequest();
                 }
@@ -89,7 +93,7 @@ namespace SOMIOD.Controllers
         {
             try
             {
-                if (!DoesApplicationExist(applicationName))
+                if (Shared.AreArgsEmpty(new List<string> { applicationName }) || !Shared.DoesApplicationExist(_context,applicationName))
                 {
                     return BadRequest();
                 }
@@ -119,11 +123,13 @@ namespace SOMIOD.Controllers
 
         [HttpPost]
         [Route("somiod/{applicationName}/{containerName}/")]
-        public IHttpActionResult PostSubscription(string applicationName, string containerName, [FromBody]XmlElement subscription)
+        public IHttpActionResult PostSubscription(string applicationName, string containerName, [FromBody]XmlElement subscription)  
         {
             try
             {
-                if (!DoesApplicationExist(applicationName) || !DoesContainerExist(containerName))
+                if (Shared.AreArgsEmpty(new List<string> { applicationName, containerName }) ||
+                    !Shared.DoesApplicationExist(_context, applicationName) || 
+                    !Shared.DoesContainerExist(_context, containerName))
                 {
                     return BadRequest();
                 }
@@ -142,9 +148,11 @@ namespace SOMIOD.Controllers
                     return Content(HttpStatusCode.Conflict, "Resource already exists");
                 }
 
-                //RICARDO check to see if event and endpoint!
-                if (!IsDateCreatedCorrect(sub.CreatedDate) ||
-                    !IsSubscriptionConnected(applicationName, containerName, sub))
+                //RICARDO TEST
+                if (!Shared.IsDateCreatedCorrect(sub.CreatedDate) ||
+                    !IsSubscriptionConnected(applicationName, containerName, sub) ||
+                    !Enum.IsDefined(typeof(Events), sub.Event) ||
+                    string.IsNullOrEmpty(sub.Endpoint))
                 {
                     return BadRequest();
                 }
@@ -161,59 +169,15 @@ namespace SOMIOD.Controllers
             }
         }
 
-        [HttpPut]
-        [Route("somiod/{applicationName}/{containerName}")]
-        public IHttpActionResult PutSubscription(string applicationName, string containerName, [FromBody] XmlElement subscription)
-        {
-            try
-            {
-                if (!DoesApplicationExist(applicationName) || !DoesContainerExist(containerName))
-                {
-                    return BadRequest();
-                }
-
-                var sub = new Subscription()
-                {
-                    Name = subscription.SelectSingleNode($"/application/container/subscription/name")?.InnerText,
-                    CreatedDate = DateTime.Parse(subscription.SelectSingleNode($"/application/container/subscription/createddate")?.InnerText),
-                    Event = subscription.SelectSingleNode($"/application/container/subscription/event")?.InnerText,
-                    Endpoint = subscription.SelectSingleNode($"/application/container/subscription/endpoint")?.InnerText,
-                    Parent = Int32.Parse(subscription.SelectSingleNode($"/application/container/subscription/parent")?.InnerText),
-                };
-
-                //RICARDO check to see if event and endpoint!
-                if (!IsDateCreatedCorrect(sub.CreatedDate) ||
-                    !IsSubscriptionConnected(applicationName, containerName, sub))
-                {
-                    return BadRequest();
-                }
-
-                var dbSub = _context.Subscriptions.SingleOrDefault(x => x.Id == sub.Id);
-                if(dbSub != null) { return NotFound(); }
-
-                dbSub.Name = sub.Name;
-                dbSub.CreatedDate = sub.CreatedDate;
-                dbSub.Event = sub.Event;
-                dbSub.Endpoint = sub.Endpoint;
-                dbSub.Parent = sub.Parent;
-
-                _context.SaveChanges();
-                return Ok();
-
-            }
-            catch(Exception ex)
-            {
-                return Content(HttpStatusCode.InternalServerError, ex.Message);
-            }
-        }
-
         [HttpDelete]
         [Route("somiod/{applicationName}/{containerName}/sub")]
         public IHttpActionResult DeleteSubscription(string applicationName,string containerName, string subscriptionName)
         {
             try
             {
-                if (!DoesApplicationExist(applicationName) || !DoesContainerExist(containerName))
+                if (Shared.AreArgsEmpty(new List<string> { applicationName, containerName, subscriptionName }) ||
+                    !Shared.DoesApplicationExist(_context, applicationName) || 
+                    !Shared.DoesContainerExist(_context, containerName))
                 {
                     return BadRequest();
                 }
@@ -238,24 +202,9 @@ namespace SOMIOD.Controllers
             }
         }
 
-        private bool DoesApplicationExist(string applicationName)
-        {
-            return _context.Applications.Any(x => String.Equals(x.Name, applicationName));
-        }
-
-        private bool DoesContainerExist(string containerName)
-        {
-            return _context.Containers.Any(x => String.Equals(x.Name, containerName));
-        }
-
         private bool DoesSubscriptionExist(string subscriptionName)
         {
             return _context.Subscriptions.Any(x => String.Equals(x.Name, subscriptionName));
-        }
-
-        private bool IsDateCreatedCorrect(DateTime date)
-        {
-            return date < DateTime.Now;
         }
 
         private bool IsSubscriptionConnected(string applicationName, string containerName, Subscription sub)

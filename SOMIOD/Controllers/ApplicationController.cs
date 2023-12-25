@@ -30,91 +30,147 @@ namespace SOMIOD.Controllers
         [Route("somiod/{applicationName}")]
         public IHttpActionResult GetApplication(string applicationName)
         {
-            if (String.IsNullOrEmpty(applicationName)) return BadRequest();
+            try
+            {
+                if (Shared.AreArgsEmpty(new List<string> { applicationName }))
+                {
+                    return BadRequest();
+                }
 
-            var result = _context.Applications.FirstOrDefault(x => x.Name.ToLower() == applicationName.ToLower());
-            if (result is null) return NotFound();
+                var result = _context.Applications.FirstOrDefault(x => x.Name.ToLower() == applicationName.ToLower());
+                if (result is null)
+                {
+                    return NotFound();
+                }
 
-            _context.SaveChanges();
+                _context.SaveChanges();
 
-            return Ok(result);
+                return Ok(result);
+            }
+            catch(Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
         [HttpGet]
         [Route("somiod")]
         public IHttpActionResult GetApplications()
         {
-            if (Request.Headers.Count() < 1 || 
-                Request.Headers.Any(x => x.Key == "somiod-discover") ||
-                !string.Equals(Request.Headers.First(x => x.Key == "somiod-discover").Value.FirstOrDefault(),Headers.Application.ToString())) 
+            try
             {
-                return BadRequest();
-            }
+                if (Request.Headers.Count() < 1 ||
+                    Request.Headers.Any(x => x.Key == "somiod-discover") ||
+                    !string.Equals(Request.Headers.First(x => x.Key == "somiod-discover").Value.FirstOrDefault(), Headers.Application.ToString()))
+                {
+                    return BadRequest();
+                }
 
-            var applications = _context.Applications.Take(_context.Applications.Count());
-            return Ok(applications);
+                var applications = _context.Applications.ToList();
+                return Ok(applications);
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
         [HttpPost]
         [Route("somiod")]
         public IHttpActionResult PostApplication([FromBody] XmlElement data)
         {
-            if (data == null) { return BadRequest(); }
-
-            var dbApp = new Application()
+            try
             {
-                Name = data.SelectSingleNode("/application/@NAME")?.InnerText,
-                CreatedDate = DateTime.Parse(data.SelectSingleNode("/application/@CREATEDDATE")?.InnerText)
-            };
+                if (Shared.AreArgsEmpty(new List<string> { data.InnerText })) 
+                { 
+                    return BadRequest(); 
+                }
 
-            var entity = _context.Applications.Add(dbApp);
-            if(entity is null) return Content(HttpStatusCode.InternalServerError, "Error Inserting new Application");
-            _context.SaveChanges();
+                var dbApp = new Application()
+                {
+                    Name = data.SelectSingleNode("/application/[@NAME]")?.InnerText,
+                    CreatedDate = DateTime.Parse(data.SelectSingleNode("/application/[@CREATEDDATE]")?.InnerText)
+                };
 
-            return Ok();
+                var entity = _context.Applications.Add(dbApp);
+                if (entity is null) return Content(HttpStatusCode.InternalServerError, "Error Inserting new Application");
+
+                _context.SaveChanges();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
         [HttpPut]
         [Route("somiod")]
         public IHttpActionResult PutApplication([FromBody] XmlElement data)
         {
-            if (data == null) { return BadRequest(); }
-
-            var app = new Application()
+            try
             {
-                Id = int.Parse(data.SelectSingleNode("/application/@ID")?.InnerText),
-                Name = data.SelectSingleNode("/application/@NAME")?.InnerText,
-                CreatedDate = DateTime.Parse(data.SelectSingleNode("/application/@CREATEDDATE")?.InnerText)
-            };
+                if (Shared.AreArgsEmpty(new List<string> { data.InnerText })) 
+                { 
+                    return BadRequest(); 
+                }
 
-            var dbApp = _context.Applications.SingleOrDefault(x => x.Id == app.Id);
-            if (dbApp is null) return BadRequest();
+                var app = new Application()
+                {
+                    Id = int.Parse(data.SelectSingleNode("/application/[@ID]")?.InnerText),
+                    Name = data.SelectSingleNode("/application/[@NAME]")?.InnerText,
+                    CreatedDate = DateTime.Parse(data.SelectSingleNode("/application/[@CREATEDDATE]")?.InnerText)
+                };
 
-            dbApp.Name = app.Name;
-            dbApp.CreatedDate = app.CreatedDate;
-            _context.SaveChanges();
+                var dbApp = _context.Applications.SingleOrDefault(x => x.Id == app.Id);
+                if (dbApp is null)
+                {
+                    return BadRequest();
+                }
 
-            return Ok();
+                dbApp.Name = app.Name;
+                dbApp.CreatedDate = app.CreatedDate;
+
+                _context.SaveChanges();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
         [HttpDelete]
         [Route("somiod/{applicationId}")]
         public IHttpActionResult DeleteApplication(string applicationName)
         {
-            if (String.IsNullOrEmpty(applicationName)) { return BadRequest(); }
-
-            var entity = _context.Applications.FirstOrDefault(x => string.Equals(x.Name,applicationName));
-            
-            if(entity is null)
+            try
             {
-                return NotFound();
+                if (Shared.AreArgsEmpty(new List<string> { applicationName})) 
+                { 
+                    return BadRequest(); 
+                }
+
+                var entity = _context.Applications.FirstOrDefault(x => string.Equals(x.Name, applicationName));
+
+                if (entity is null)
+                {
+                    return NotFound();
+                }
+
+                var entityRemoved = _context.Applications.Remove(entity);
+                if (entityRemoved is null)
+                {
+                    return Content(HttpStatusCode.InternalServerError, "Error Deleting Application");
+                }
+
+                _context.SaveChanges();
+                return Ok();
             }
-
-            var entityRemoved = _context.Applications.Remove(entity);
-            if (entityRemoved is null) return Content(HttpStatusCode.InternalServerError, "Error Deleting Application");
-            _context.SaveChanges();
-
-            return Ok();
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
     }
 }
