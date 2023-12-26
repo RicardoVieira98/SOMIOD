@@ -23,7 +23,7 @@ namespace SOMIOD.Controllers
 
         public IHttpActionResult GetData(int? application, int? container, int? id)
         {
-            if (id is null || application is null || container is n)
+            if (id is null || application is null || container is null)
             {
                 return BadRequest();
             }
@@ -31,7 +31,7 @@ namespace SOMIOD.Controllers
             Models.Data dbData = new Models.Data();
 
 
-            SomiodDBContext context = new SomiodDBContext(LocalBDConnectionString);
+            SomiodDBContext context = new SomiodDBContext();
             //application
             var App = context.Applications.FirstOrDefault(x => x.Id == application);
             if(App == null) { return NotFound(); }
