@@ -39,9 +39,8 @@ namespace SOMIOD.Controllers
                     return NotFound();
                 }
 
-                var sub = _context.Subscriptions.FirstOrDefault(x => String.Equals(x.Name, subscriptionName));
-                return Ok(sub);
-
+                var sub = _context.Subscriptions.Where(x => String.Equals(x.Name, subscriptionName)).ToList();
+                return Ok(XmlHandler.OnlySubscriptionsXml(sub));
             }
             catch (Exception ex)
             {
@@ -71,7 +70,7 @@ namespace SOMIOD.Controllers
 
                 var conId = _context.Containers.SingleOrDefault(x => string.Equals(x.Name,containerName)).Id;
 
-                var subs = _context.Subscriptions.Where(x => x.Parent == conId);
+                var subs = _context.Subscriptions.Where(x => x.Parent == conId).ToList();
 
                 if(subs is null || subs.Count() == 0)
                 {
@@ -79,7 +78,7 @@ namespace SOMIOD.Controllers
                 }
 
                 _context.SaveChanges();
-                return Ok(subs);
+                return Ok(XmlHandler.OnlySubscriptionsXml(subs));
             }
             catch (Exception ex)
             {
@@ -113,7 +112,7 @@ namespace SOMIOD.Controllers
                 }
 
                 _context.SaveChanges();
-                return Ok(subs);
+                return Ok(XmlHandler.OnlySubscriptionsXml(subs));
             }
             catch (Exception ex)
             {
@@ -209,8 +208,8 @@ namespace SOMIOD.Controllers
 
         private bool IsSubscriptionConnected(string applicationName, string containerName, Subscription sub)
         {
-            int appId = _context.Applications.FirstOrDefault(x => x.Name == applicationName).Id;
-            int conId = _context.Containers.FirstOrDefault(x => x.Name == containerName).Id;
+            int? appId = _context.Applications.FirstOrDefault(x => x.Name == applicationName)?.Id;
+            int? conId = _context.Containers.FirstOrDefault(x => x.Name == containerName)?.Id;
             return _context.Subscriptions.Any(x => x.Id == sub.Id && x.Parent == conId) && _context.Containers.Any(x => x.Id == sub.Parent && x.Parent == appId); 
         }
     }

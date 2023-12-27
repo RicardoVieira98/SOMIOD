@@ -27,6 +27,7 @@ namespace SOMIOD.Controllers
             {
                 if (Shared.AreArgsEmpty(new List<string> { applicationName }))
                 {
+                    //RICARDO SEND NICER MESSAGES
                     return BadRequest();
                 }
 
@@ -44,7 +45,6 @@ namespace SOMIOD.Controllers
             }
         }
         
-        //RICARDO Change returning responses format using XmlHandler
         [HttpGet]
         [Route("somiod")]
         public IHttpActionResult GetApplications()
@@ -52,7 +52,7 @@ namespace SOMIOD.Controllers
             try
             {
                 if (Request.Headers.Count() < 1 ||
-                    Request.Headers.Any(x => x.Key == "somiod-discover") ||
+                    !Request.Headers.Any(x => x.Key == "somiod-discover") ||
                     !string.Equals(Request.Headers.First(x => x.Key == "somiod-discover").Value.FirstOrDefault(), Headers.Application.ToString()))
                 {
                     return BadRequest();
@@ -85,8 +85,10 @@ namespace SOMIOD.Controllers
                 };
 
                 var entity = _context.Applications.Add(dbApp);
-                if (entity is null) return Content(HttpStatusCode.InternalServerError, "Error Inserting new Application");
-
+                if (entity is null)
+                {
+                    return Content(HttpStatusCode.InternalServerError, "Error Inserting new Application");
+                }
                 _context.SaveChanges();
                 return Ok();
             }

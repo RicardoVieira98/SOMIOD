@@ -14,7 +14,7 @@ namespace SOMIOD.Library
     {
         public static string FullApplicationXml(Application app, List<Container> containers, List<Subscription> subscriptions, List<Data> datas)
         {
-            XmlDocument doc = CreateDocumentHeader();
+            XmlDocument doc = new XmlDocument();
 
             var applicationElement = SetApplicationXmlSection(app, doc);
 
@@ -41,7 +41,7 @@ namespace SOMIOD.Library
 
         public static string OnlyApplicationsXml(List<Application> apps)
         {
-            XmlDocument doc = CreateDocumentHeader();
+            XmlDocument doc = new XmlDocument();
 
             foreach (var app in apps)
             {
@@ -53,7 +53,7 @@ namespace SOMIOD.Library
 
         public static string OnlyContainersXml(List<Container> containers)
         {
-            XmlDocument doc = CreateDocumentHeader();
+            XmlDocument doc = new XmlDocument();
 
             foreach (var container in containers)
             {
@@ -64,7 +64,7 @@ namespace SOMIOD.Library
 
         public static string FullContainerXml(Container container, List<Subscription> subscriptions, List<Data> datas)
         {
-            XmlDocument doc = CreateDocumentHeader();
+            XmlDocument doc = new XmlDocument();
 
             XmlElement containerElement = SetContainerXmlSection(container,doc);
 
@@ -87,7 +87,7 @@ namespace SOMIOD.Library
 
         public static string OnlySubscriptionsXml(List<Subscription> subscriptions)
         {
-            XmlDocument doc = CreateDocumentHeader();
+            XmlDocument doc = new XmlDocument();
 
             foreach (var subscription in subscriptions)
             {
@@ -98,7 +98,7 @@ namespace SOMIOD.Library
 
         public static string OnlyDataXml(List<Data> datas)
         {
-            XmlDocument doc = CreateDocumentHeader();
+            XmlDocument doc = new XmlDocument();
 
             foreach (var data in datas)
             {
@@ -107,19 +107,11 @@ namespace SOMIOD.Library
             return doc.OuterXml;
         }
 
-        private static XmlDocument CreateDocumentHeader()
-        {
-            XmlDocument doc = new XmlDocument();
-            XmlDeclaration dec = doc.CreateXmlDeclaration("1.0", null, null);
-            doc.AppendChild(dec);
-            return doc;
-        }
-
         private static XmlElement SetApplicationXmlSection(Application app, XmlDocument doc)
         {
             XmlElement applicationElement = doc.CreateElement("Application");
             applicationElement.SetAttribute("Name", app?.Name);
-            applicationElement.SetAttribute("CreatedDate", app?.CreatedDate.ToString());
+            applicationElement.SetAttribute("CreatedDate", FormatDate(app?.CreatedDate));
             doc.AppendChild(applicationElement);
             return applicationElement;
         }
@@ -155,6 +147,11 @@ namespace SOMIOD.Library
             dataElement.SetAttribute("Content", data?.Content);
             doc.AppendChild(dataElement);
             return dataElement;
+        }
+
+        private static string FormatDate(DateTime? datetime)
+        {
+            return datetime.Value.ToString("yyyy-dd-MMThh:mm:ss");
         }
     }
 }
