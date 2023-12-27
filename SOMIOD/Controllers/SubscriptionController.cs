@@ -1,6 +1,6 @@
 ﻿using SOMIOD.Data;
 using SOMIOD.Library;
-using SOMIOD.Models;
+using SOMIOD.Library.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,9 +16,9 @@ namespace SOMIOD.Controllers
     {
         private readonly SomiodDBContext _context;
 
-        public SubscriptionController(SomiodDBContext context)
+        public SubscriptionController()
         {
-            _context = context;
+            _context = new SomiodDBContext();
         }
 
         [HttpGet]

@@ -19,7 +19,7 @@ namespace SOMIOD.Controllers
         }
 
         [HttpGet]
-        [Route ("somiod/{application}/{container}/data/{int:id}")]
+        [Route ("somiod/{application}/{container}/data/{id:int}")]
 
         public IHttpActionResult GetData(int? application, int? container, int? id)
         {
@@ -28,7 +28,7 @@ namespace SOMIOD.Controllers
                 return BadRequest();
             }
 
-            Models.Data dbData = new Models.Data();
+            Library.Models.Data dbData = new Library.Models.Data();
 
 
             SomiodDBContext context = new SomiodDBContext();

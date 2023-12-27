@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace SOMIOD.Models
+namespace SOMIOD.Library.Models
 {
     public class Application
     {

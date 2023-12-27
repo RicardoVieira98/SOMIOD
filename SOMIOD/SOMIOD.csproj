@@ -131,14 +131,16 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\SubscriptionController.cs" />
     <Compile Include="Data\SomiodDBContext.cs" />
+    <Compile Include="DepedencyActivator.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\Application.cs" />
-    <Compile Include="Models\Container.cs" />
-    <Compile Include="Models\Data.cs" />
-    <Compile Include="Models\Subscription.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="Shared.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +161,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SOMIOD.Library\SOMIOD.Library.csproj">
@@ -184,7 +190,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>59707</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:59707/</IISUrl>
+          <IISUrl>http://localhost:59708/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

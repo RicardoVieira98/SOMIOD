@@ -1,14 +1,14 @@
-﻿using SOMIOD.Models;
-using System;
-using System.Collections.Generic;
+﻿using SOMIOD.Library.Models;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
-using System.Linq;
-using System.Web;
 using System.Web.Configuration;
 
 namespace SOMIOD.Data
 {
+    public interface ISomiodDBContext
+    {
+        void OnModelCreating(DbModelBuilder modelBuilder);
+    }
     public class SomiodDBContext : DbContext
     {
         private static readonly string _connectionString = WebConfigurationManager.ConnectionStrings["LocalInstanceBD"].ConnectionString;
@@ -17,7 +17,7 @@ namespace SOMIOD.Data
         }
         public DbSet<Application> Applications { get; set; }
         public DbSet<Container> Containers { get; set; }
-        public DbSet<Models.Data> Datas { get; set; }
+        public DbSet<Library.Models.Data> Datas { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
 
 

@@ -30,14 +30,15 @@ namespace SOMIOD.AppGenerator
             //var listaApps = response.Result.Content;
             //applications.DataSource = listaApps;
 
-            var APIPath = "http://localhost:59707/somiod/container";
+            var APIPath = $"http://localhost:59708/somiod/App1";
+            client.DefaultRequestHeaders.Add("Accept", "application/xml");
             var response = client.GetAsync(APIPath);
             if (!(response.Result.StatusCode == System.Net.HttpStatusCode.OK))
             {
-                //show error message
+                //show error message~
             }
 
-            var listaSubsAll = response.Result.Content;
+            var listaSubsAll = response.Result.Content.ReadAsStringAsync().Result;
             applications.DataSource = listaSubsAll;
         }
 

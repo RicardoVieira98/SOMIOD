@@ -1,19 +1,12 @@
 ﻿using SOMIOD.Data;
 using SOMIOD.Library;
-using SOMIOD.Models;
+using SOMIOD.Library.Models;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Web;
-using System.Web.Configuration;
 using System.Web.Http;
 using System.Xml;
-using System.Xml.Linq;
-using WebGrease.Css.Extensions;
 
 namespace SOMIOD.Controllers
 {
@@ -21,9 +14,9 @@ namespace SOMIOD.Controllers
     {
         private readonly SomiodDBContext _context;
 
-        public ApplicationController(SomiodDBContext context)
+        public ApplicationController()
         {
-            _context = context;
+            _context = new SomiodDBContext();
         }
 
         [HttpGet]   
@@ -37,22 +30,21 @@ namespace SOMIOD.Controllers
                     return BadRequest();
                 }
 
-                var result = _context.Applications.FirstOrDefault(x => x.Name.ToLower() == applicationName.ToLower());
-                if (result is null)
+                var apps = _context.Applications.Where(x => x.Name.ToLower() == applicationName.ToLower()).ToList();
+                if (apps is null)
                 {
                     return NotFound();
                 }
 
-                _context.SaveChanges();
-
-                return Ok(result);
+                return Ok(XmlHandler.OnlyApplicationsXml(apps));
             }
             catch(Exception ex)
             {
                 return Content(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
-
+        
+        //RICARDO Change returning responses format using XmlHandler
         [HttpGet]
         [Route("somiod")]
         public IHttpActionResult GetApplications()
