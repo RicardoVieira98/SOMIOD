@@ -59,7 +59,7 @@ namespace SOMIOD.Controllers
                 }
 
                 var applications = _context.Applications.ToList();
-                return Ok(applications);
+                return Ok(XmlHandler.OnlyApplicationsXml(applications));
             }
             catch (Exception ex)
             {

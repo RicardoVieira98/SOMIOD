@@ -43,10 +43,14 @@ namespace SOMIOD.Library
         {
             XmlDocument doc = new XmlDocument();
 
+            XmlElement applicationElement = doc.CreateElement("applications");
+
             foreach (var app in apps)
             {
-                SetApplicationXmlSection(app, doc);
+                var element = SetApplicationXmlSection(app, doc);
+                applicationElement.AppendChild(element);
             }
+            doc.AppendChild(applicationElement);
 
             return doc.OuterXml;
         }
@@ -109,10 +113,9 @@ namespace SOMIOD.Library
 
         private static XmlElement SetApplicationXmlSection(Application app, XmlDocument doc)
         {
-            XmlElement applicationElement = doc.CreateElement("Application");
-            applicationElement.SetAttribute("Name", app?.Name);
-            applicationElement.SetAttribute("CreatedDate", FormatDate(app?.CreatedDate));
-            doc.AppendChild(applicationElement);
+            XmlElement applicationElement = doc.CreateElement("application");
+            applicationElement.SetAttribute("name", app?.Name);
+            applicationElement.SetAttribute("createddate", FormatDate(app?.CreatedDate));
             return applicationElement;
         }
 

@@ -1,4 +1,5 @@
-﻿using SOMIOD.Library.Models;
+﻿using Newtonsoft.Json;
+using SOMIOD.Library.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -33,16 +34,26 @@ namespace SOMIOD.AppGenerator
 
             var result = XElement.Parse(response.Result.Content.ReadAsStringAsync().Result).Value;
 
-            Library.Models.Application app = new Library.Models.Application();
+            XmlDocument xmlDocument = new XmlDocument();
+            xmlDocument.LoadXml(result);
 
-            var serializer = new XmlSerializer(typeof(Library.Models.Application));
-            using (var reader = new StringReader(result))
+            XmlNodeList appNodes = xmlDocument.SelectNodes("//applications");
+
+            List<string> applicationNames = new List<string>();
+            foreach (XmlNode appNode in appNodes)
             {
-                app = (Library.Models.Application)serializer.Deserialize(reader);
+                foreach(XmlNode childNode in appNode.ChildNodes)
+                {
+                    Library.Models.Application application = new Library.Models.Application()
+                    {
+                        Name = childNode.Attributes[0].Value,
+                        CreatedDate = DateTime.Parse(childNode.Attributes[1].Value)
+                    };
+                    applicationNames.Add(application.Name);
+                }
             }
 
-            List<string> appNames = new List<string>() { app.Name };
-            applications.DataSource = appNames;
+            applications.DataSource = applicationNames;
         }
 
         private void label1_Click(object sender, EventArgs e)
