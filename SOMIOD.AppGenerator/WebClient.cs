@@ -25,6 +25,11 @@ namespace SOMIOD.AppGenerator
 
         public static void AddOperationTypeHeader(HttpClient client, Headers operationType) 
         {
+            if(client.DefaultRequestHeaders.Any(x => string.Equals("somiod-discover", x.Key)))
+            {
+                client.DefaultRequestHeaders.Remove("somiod-discover");
+            }
+
             client.DefaultRequestHeaders.Add("somiod-discover", operationType.ToString());
         }
     }

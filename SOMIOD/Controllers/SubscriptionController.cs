@@ -87,19 +87,14 @@ namespace SOMIOD.Controllers
         }
 
         [HttpGet]
-        [Route("somiod/{applicationName}/container")]
-        public IHttpActionResult GetSubscriptions(string applicationName)
+        [Route("somiod/application/container")]
+        public IHttpActionResult GetSubscriptions()
         {
             try
             {
-                if (Shared.AreArgsEmpty(new List<string> { applicationName }) || !Shared.DoesApplicationExist(_context,applicationName))
-                {
-                    return BadRequest();
-                }
-
                 if (Request.Headers.Count() < 1 ||
-                    Request.Headers.Any(x => x.Key == "somiod-discover") ||
-                    !string.Equals(Request.Headers.First(x => x.Key == "somiod-discover").Value.FirstOrDefault(), Headers.Subscription.ToString().ToLower()))
+                    !Request.Headers.Any(x => x.Key == "somiod-discover") ||
+                    !string.Equals(Request.Headers.First(x => x.Key == "somiod-discover").Value.FirstOrDefault(), Headers.Subscription.ToString()))
                 {
                     return BadRequest();
                 }

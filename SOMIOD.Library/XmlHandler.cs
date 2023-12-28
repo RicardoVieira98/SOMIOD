@@ -47,8 +47,7 @@ namespace SOMIOD.Library
 
             foreach (var app in apps)
             {
-                var element = SetApplicationXmlSection(app, doc);
-                applicationElement.AppendChild(element);
+                applicationElement.AppendChild(SetApplicationXmlSection(app, doc));
             }
             doc.AppendChild(applicationElement);
 
@@ -93,10 +92,22 @@ namespace SOMIOD.Library
         {
             XmlDocument doc = new XmlDocument();
 
+            XmlElement subscriptionsElement = doc.CreateElement("subscriptions");
             foreach (var subscription in subscriptions)
             {
-                SetSubscriptionXmlSection(subscription, doc);
+                subscriptionsElement.AppendChild(SetSubscriptionXmlSection(subscription, doc));
             }
+
+            doc.AppendChild(subscriptionsElement);
+            return doc.OuterXml;
+        }
+
+        public static string SentSubscriptionXml(Subscription subscription)
+        {
+            XmlDocument doc = new XmlDocument();
+
+            XmlElement element = SetSubscriptionXmlSection(subscription, doc);
+            doc.AppendChild(element);
             return doc.OuterXml;
         }
 
@@ -131,13 +142,13 @@ namespace SOMIOD.Library
 
         private static XmlElement SetSubscriptionXmlSection(Subscription subscription, XmlDocument doc)
         {
-            XmlElement subscriptionElement = doc.CreateElement("Subscription");
-            subscriptionElement.SetAttribute("Name", subscription?.Name);
-            subscriptionElement.SetAttribute("CreatedDate", subscription?.CreatedDate.ToString());
-            subscriptionElement.SetAttribute("Parent", subscription?.Parent.ToString());
-            subscriptionElement.SetAttribute("Event", subscription?.Event);
-            subscriptionElement.SetAttribute("Endpoint", subscription.Endpoint);
-            doc.AppendChild(subscriptionElement);
+            XmlElement subscriptionElement = doc.CreateElement("subscription");
+            subscriptionElement.SetAttribute("name", subscription?.Name);
+            subscriptionElement.SetAttribute("createdDate", subscription?.CreatedDate.ToString());
+            subscriptionElement.SetAttribute("parent", subscription?.Parent.ToString());
+            subscriptionElement.SetAttribute("event", subscription?.Event);
+            subscriptionElement.SetAttribute("endpoint", subscription.Endpoint);
+
             return subscriptionElement;
         }
 
