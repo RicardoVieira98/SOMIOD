@@ -17,8 +17,8 @@ namespace SOMIOD.AppGenerator
 
             httpClient = WebClient.CreateHttpClient();
 
-            applications.DataSource = GetAllApplicationNames(httpClient);
-            //containers.DataSource = GetAllContainersNames(httpClient);
+            applications.DataSource = Shared.GetAllApplicationNames(httpClient);
+            //containers.DataSource = Shared.GetAllContainersNames(httpClient);
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -35,6 +35,7 @@ namespace SOMIOD.AppGenerator
         //Delete Subscription
         private void button4_Click(object sender, EventArgs e)
         {
+            //show confirmation window
             DeleteSubscription();
         }
 
@@ -60,23 +61,9 @@ namespace SOMIOD.AppGenerator
             //containers.DataSource = listaContainers;
         }
 
-        private List<string> GetAllApplicationNames(HttpClient client)
-        {
-            WebClient.AddOperationTypeHeader(client, Library.Headers.Application);
-            var response = client.GetAsync(client.BaseAddress);
-            if (!(response.Result.StatusCode == System.Net.HttpStatusCode.OK))
-            {
-                //show error message
-                return null;
-            }
-
-            return SetObjectNamesList(response, "//applications");
-        }
-
         private List<string> GetAllSubscriptionNames(HttpClient client)
         {
             WebClient.AddOperationTypeHeader(client, Library.Headers.Subscription);
-
             var response = client.GetAsync(client.BaseAddress + "application/container");
             if (!(response.Result.StatusCode == System.Net.HttpStatusCode.OK))
             {
@@ -84,47 +71,20 @@ namespace SOMIOD.AppGenerator
                 return null;
             }
 
-            return SetObjectNamesList(response,"//subscription");
-        }
-
-        private List<string> GetAllContainersNamesFromApplication(HttpClient client, string applicationName)
-        {
-            var response = client.GetAsync(client.BaseAddress + "/" + applicationName);
-            if (!(response.Result.StatusCode == System.Net.HttpStatusCode.OK))
-            {
-                //show error message
-                return null;
-            }
-
-            return SetObjectNamesList(response, "//applications");
+            return Shared.SetObjectNamesList(response,"//subscriptions");
         }
 
         private List<string> GetAllSubscriptionNamesFromContainer(HttpClient client, string containerName)
         {
-            var response = client.GetAsync(client.BaseAddress + "application");
+            WebClient.AddOperationTypeHeader(client, Library.Headers.Subscription);
+            var response = client.GetAsync(client.BaseAddress + "application/" + containerName );
             if (!(response.Result.StatusCode == System.Net.HttpStatusCode.OK))
             {
                 //show error message
                 return null;
             }
 
-            var result = XElement.Parse(response.Result.Content.ReadAsStringAsync().Result).Value;
-
-            XmlDocument xmlDocument = new XmlDocument();
-            xmlDocument.LoadXml(result);
-
-            XmlNodeList appRootNode = xmlDocument.SelectNodes("//applications");
-
-            List<string> applicationNames = new List<string>();
-            foreach (XmlNode appNode in appRootNode)
-            {
-                foreach (XmlNode childNode in appNode.ChildNodes)
-                {
-                    applicationNames.Add(childNode.Attributes[0].Value);
-                }
-            }
-
-            return applicationNames;
+            return Shared.SetObjectNamesList(response,"//applications");
         }
 
         private void DeleteSubscription()
@@ -138,27 +98,6 @@ namespace SOMIOD.AppGenerator
             {
                 //show error message
             }
-        }
-
-        private List<string> SetObjectNamesList(Task<HttpResponseMessage> response, string queryNode)
-        {
-            var result = XElement.Parse(response.Result.Content.ReadAsStringAsync().Result).Value;
-
-            XmlDocument xmlDocument = new XmlDocument();
-            xmlDocument.LoadXml(result);
-
-            XmlNodeList rootNode = xmlDocument.SelectNodes(queryNode);
-
-            List<string> objectNames = new List<string>();
-            foreach (XmlNode childNode in rootNode)
-            {
-                foreach (XmlNode grandChildNode in childNode.ChildNodes)
-                {
-                    objectNames.Add(grandChildNode.Attributes[0].Value);
-                }
-            }
-
-            return objectNames;
         }
     }
 }

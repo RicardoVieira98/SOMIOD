@@ -102,7 +102,16 @@ namespace SOMIOD.Library
             return doc.OuterXml;
         }
 
-        public static string SentSubscriptionXml(Subscription subscription)
+        public static string SendApplicationXml(Application application)
+        {
+            XmlDocument doc = new XmlDocument();
+
+            XmlElement element = SetApplicationXmlSection(application,doc);
+            doc.AppendChild(element);
+            return doc.OuterXml;
+        }
+
+        public static string SendSubscriptionXml(Subscription subscription)
         {
             XmlDocument doc = new XmlDocument();
 
