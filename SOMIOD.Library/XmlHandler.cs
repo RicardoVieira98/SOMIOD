@@ -102,7 +102,7 @@ namespace SOMIOD.Library
             return doc.OuterXml;
         }
 
-        public static string SendApplicationXml(Application application)
+        public static string GetApplicationXml(Application application)
         {
             XmlDocument doc = new XmlDocument();
 
@@ -111,7 +111,7 @@ namespace SOMIOD.Library
             return doc.OuterXml;
         }
 
-        public static string SendSubscriptionXml(Subscription subscription)
+        public static string GetSubscriptionXml(Subscription subscription)
         {
             XmlDocument doc = new XmlDocument();
 
@@ -174,7 +174,8 @@ namespace SOMIOD.Library
 
         private static string FormatDate(DateTime? datetime)
         {
-            return datetime.Value.ToString("yyyy-dd-MMThh:mm:ss");
+            return datetime.Value.ToString("dd-MM-yyyy hh:mm:ss");
+            //return datetime.Value.ToString("yyyy-dd-MMThh:mm:ss");
         }
     }
 }

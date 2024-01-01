@@ -16,7 +16,7 @@ namespace SOMIOD.AppGenerator
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new SubscriptionForm());
+            Application.Run(new ApplicationForm());
         }
     }
 }

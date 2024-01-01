@@ -5,10 +5,6 @@ using System.Web.Configuration;
 
 namespace SOMIOD.Data
 {
-    public interface ISomiodDBContext
-    {
-        void OnModelCreating(DbModelBuilder modelBuilder);
-    }
     public class SomiodDBContext : DbContext
     {
         private static readonly string _connectionString = WebConfigurationManager.ConnectionStrings["LocalInstanceBD"].ConnectionString;

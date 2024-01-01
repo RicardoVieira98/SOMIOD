@@ -58,7 +58,7 @@ namespace SOMIOD.AppGenerator
                 Event = events
             };
 
-            string request = XmlHandler.SendSubscriptionXml(subscription);
+            string request = XmlHandler.GetSubscriptionXml(subscription);
             HttpContent content = new StringContent(request, Encoding.UTF8, "application/xml");
             var response = client.PostAsync(client.BaseAddress + "/" + ApplicationName + "/" + ContainerName + "/", content);
             if(response.Result.StatusCode != System.Net.HttpStatusCode.OK)

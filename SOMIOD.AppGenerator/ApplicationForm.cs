@@ -35,9 +35,9 @@ namespace SOMIOD.AppGenerator
         //Update
         private void button2_Click(object sender, EventArgs e)
         {
-            var applicationName = applications.SelectedItem.ToString();
+            var applicationName = applications.SelectedItem?.ToString();
 
-            CreateApplicationForm createApplicationForm = new CreateApplicationForm(false, Shared.GetApplication(client,applicationName));
+                CreateApplicationForm createApplicationForm = new CreateApplicationForm(false, Shared.GetApplication(client,applicationName));
             createApplicationForm.ShowDialog();
         }
 
@@ -49,7 +49,7 @@ namespace SOMIOD.AppGenerator
 
         private void DeleteApplication()
         {
-            string applicationName = applications.SelectedItem.ToString();
+            string applicationName = applications.SelectedItem?.ToString();
             var response = client.DeleteAsync(client.BaseAddress + applicationName);
 
             if(response.Result.StatusCode != System.Net.HttpStatusCode.OK)

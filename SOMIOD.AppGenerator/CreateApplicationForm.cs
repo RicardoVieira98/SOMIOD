@@ -15,7 +15,7 @@ namespace SOMIOD.AppGenerator
 {
     public partial class CreateApplicationForm : Form
     {
-        private bool create = true;
+        private bool create;
         public CreateApplicationForm(bool create, Library.Models.Application application)
         {
             InitializeComponent();
@@ -36,7 +36,7 @@ namespace SOMIOD.AppGenerator
                 CreatedDate = dateTimePicker1.Value
             };
 
-            string request = XmlHandler.SendApplicationXml(application);
+            string request = XmlHandler.GetApplicationXml(application);
             HttpContent content = new StringContent(request, Encoding.UTF8, "application/xml");
 
 

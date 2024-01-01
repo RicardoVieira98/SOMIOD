@@ -73,15 +73,15 @@ namespace SOMIOD.Controllers
         {
             try
             {
-                if (Shared.AreArgsEmpty(new List<string> { data.InnerText })) 
+                if (data is null || data.Attributes?.Count < 1) 
                 { 
                     return BadRequest(); 
                 }
 
                 var dbApp = new Application()
                 {
-                    Name = data.SelectSingleNode("/application/[@NAME]")?.InnerText,
-                    CreatedDate = DateTime.Parse(data.SelectSingleNode("/application/[@CREATEDDATE]")?.InnerText)
+                    Name = data.Attributes[0]?.Value,
+                    CreatedDate = DateTime.Parse(data.Attributes[1]?.Value)
                 };
 
                 var entity = _context.Applications.Add(dbApp);
@@ -104,16 +104,16 @@ namespace SOMIOD.Controllers
         {
             try
             {
-                if (Shared.AreArgsEmpty(new List<string> { data.InnerText })) 
-                { 
-                    return BadRequest(); 
+                if (data is null || data.Attributes?.Count < 1)
+                {
+                    return BadRequest();
                 }
 
                 var app = new Application()
                 {
-                    Id = int.Parse(data.SelectSingleNode("/application/[@ID]")?.InnerText),
-                    Name = data.SelectSingleNode("/application/[@NAME]")?.InnerText,
-                    CreatedDate = DateTime.Parse(data.SelectSingleNode("/application/[@CREATEDDATE]")?.InnerText)
+                    Id = int.Parse(data.Attributes[0]?.Value),
+                    Name = data.Attributes[1]?.Value,
+                    CreatedDate = DateTime.Parse(data.Attributes[2]?.Value)
                 };
 
                 var dbApp = _context.Applications.SingleOrDefault(x => x.Id == app.Id);

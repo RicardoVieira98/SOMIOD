@@ -17,6 +17,7 @@ namespace SOMIOD.AppGenerator
         }
         public static HttpClient CreateHttpClient()
         {
+            client = new HttpClient();
             var APIPath = ConfigurationManager.AppSettings["localhost"];
             client.DefaultRequestHeaders.Add("Accept", "application/xml");
             client.BaseAddress = new Uri(APIPath);
