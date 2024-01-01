@@ -18,6 +18,7 @@ namespace SOMIOD.AppGenerator
         private bool create;
         public CreateApplicationForm(bool create, Library.Models.Application application)
         {
+            this.create = create;
             InitializeComponent();
             button1.Text = create ? "Create" : "Edit";
             if (!create)
@@ -32,13 +33,13 @@ namespace SOMIOD.AppGenerator
 
             Library.Models.Application application = new Library.Models.Application()
             {
+                Id = Int32.Parse(textBox2.Text),
                 Name = textBox1.Text,
                 CreatedDate = dateTimePicker1.Value
             };
 
             string request = XmlHandler.GetApplicationXml(application);
             HttpContent content = new StringContent(request, Encoding.UTF8, "application/xml");
-
 
             var response = create ? client.PostAsync(client.BaseAddress, content) : client.PutAsync(client.BaseAddress, content);
             if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
@@ -53,6 +54,7 @@ namespace SOMIOD.AppGenerator
 
         private void FillFormForEdition(Library.Models.Application application)
         {
+            textBox2.Text = application.Id.ToString();
             textBox1.Text = application.Name;
             dateTimePicker1.Value = application.CreatedDate;
         }

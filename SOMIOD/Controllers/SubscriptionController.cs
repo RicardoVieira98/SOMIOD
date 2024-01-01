@@ -6,9 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Runtime.Remoting.Messaging;
+using System.Text;
 using System.Web;
 using System.Web.Http;
+using System.Web.UI;
 using System.Xml;
+using uPLibrary.Networking.M2Mqtt;
+using uPLibrary.Networking.M2Mqtt.Messages;
 
 namespace SOMIOD.Controllers
 {
@@ -130,11 +134,11 @@ namespace SOMIOD.Controllers
 
                 var sub = new Subscription()
                 {
-                    Name = subscription.SelectSingleNode($"/application/container/subscription/name")?.InnerText,
-                    CreatedDate = DateTime.Parse(subscription.SelectSingleNode($"/application/container/subscription/createddate")?.InnerText),
-                    Event = subscription.SelectSingleNode($"/application/container/subscription/event")?.InnerText,
-                    Endpoint = subscription.SelectSingleNode($"/application/container/subscription/endpoint")?.InnerText,
-                    Parent = Int32.Parse(subscription.SelectSingleNode($"/application/container/subscription/parent")?.InnerText),
+                    Name = subscription.Attributes[0].Value,
+                    CreatedDate = DateTime.Parse(subscription.Attributes[1].Value),
+                    Event = subscription.Attributes[2].Value,
+                    Endpoint = subscription.Attributes[3].Value,
+                    Parent = Int32.Parse(subscription.Attributes[4].Value),
                 };
 
                 if (DoesSubscriptionExist(sub.Name))
@@ -206,6 +210,44 @@ namespace SOMIOD.Controllers
             int? appId = _context.Applications.FirstOrDefault(x => x.Name == applicationName)?.Id;
             int? conId = _context.Containers.FirstOrDefault(x => x.Name == containerName)?.Id;
             return _context.Subscriptions.Any(x => x.Id == sub.Id && x.Parent == conId) && _context.Containers.Any(x => x.Id == sub.Parent && x.Parent == appId); 
+        }
+
+        [Obsolete]
+        private void CallMessageBroker()
+        {
+//            MqttClient mClient = new MqttClient(IPAddress.Parse("127.0.0.1"));
+
+//            string[] mStrTopicsInfo = { "news", "complaints" };
+
+//            mClient.Connect(Guid.NewGuid().ToString());
+
+//            if (!mClient.IsConnected)
+//            {
+//                MessageBox.Show("Error connecting to message broker...");
+//                return;
+//            }
+//            mClient.MqttMsgPublishReceived += client_MqttMsgPublishReceived;
+//            byte[] qosLevels = { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE,
+//MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE};//QoS
+//            mClient.Subscribe(mStrTopicsInfo, qosLevels);
+
+
+
+            MqttClient mcClient = new MqttClient(IPAddress.Parse("1883"));
+            string[] mStrTopicsInfo = { "news", "complaints" };
+            mcClient.Connect(Guid.NewGuid().ToString());
+            if (!mcClient.IsConnected)
+            {
+
+            }
+
+            mcClient.Publish("news", Encoding.UTF8.GetBytes("Hello World!"));
+            if (mcClient.IsConnected)
+            {
+                mcClient.Unsubscribe(mStrTopicsInfo); //Put this in a button to see notify!
+                mcClient.Disconnect(); //Free process and process's resources
+            }
+
         }
     }
 }

@@ -111,7 +111,7 @@ namespace SOMIOD.Controllers
 
                 var app = new Application()
                 {
-                    Id = int.Parse(data.Attributes[0]?.Value),
+                    Id = Int32.Parse(data.Attributes[0]?.Value),
                     Name = data.Attributes[1]?.Value,
                     CreatedDate = DateTime.Parse(data.Attributes[2]?.Value)
                 };
@@ -135,7 +135,7 @@ namespace SOMIOD.Controllers
         }
 
         [HttpDelete]
-        [Route("somiod/{applicationId}")]
+        [Route("somiod/{applicationName}")]
         public IHttpActionResult DeleteApplication(string applicationName)
         {
             try

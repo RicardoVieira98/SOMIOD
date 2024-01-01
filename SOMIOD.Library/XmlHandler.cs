@@ -134,6 +134,7 @@ namespace SOMIOD.Library
         private static XmlElement SetApplicationXmlSection(Application app, XmlDocument doc)
         {
             XmlElement applicationElement = doc.CreateElement("application");
+            applicationElement.SetAttribute("id",app?.Id.ToString());
             applicationElement.SetAttribute("name", app?.Name);
             applicationElement.SetAttribute("createddate", FormatDate(app?.CreatedDate));
             return applicationElement;
@@ -175,7 +176,6 @@ namespace SOMIOD.Library
         private static string FormatDate(DateTime? datetime)
         {
             return datetime.Value.ToString("dd-MM-yyyy hh:mm:ss");
-            //return datetime.Value.ToString("yyyy-dd-MMThh:mm:ss");
         }
     }
 }

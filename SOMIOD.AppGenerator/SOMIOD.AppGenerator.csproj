@@ -68,6 +68,12 @@
     <Compile Include="CreateSubscriptionForm.Designer.cs">
       <DependentUpon>CreateSubscriptionForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Shared.cs" />
     <Compile Include="WebClient.cs" />
     <Compile Include="SubscriptionForm.cs">
@@ -86,6 +92,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="CreateSubscriptionForm.resx">
       <DependentUpon>CreateSubscriptionForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm.resx">
+      <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubscriptionForm.resx">
       <DependentUpon>SubscriptionForm.cs</DependentUpon>

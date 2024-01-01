@@ -36,6 +36,7 @@
             this.allSubs = new System.Windows.Forms.ListBox();
             this.button2 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
+            this.button5 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // applications
@@ -88,12 +89,11 @@
             // 
             // allSubs
             // 
-            this.allSubs.Enabled = false;
             this.allSubs.FormattingEnabled = true;
             this.allSubs.ItemHeight = 16;
             this.allSubs.Location = new System.Drawing.Point(47, 243);
             this.allSubs.Name = "allSubs";
-            this.allSubs.Size = new System.Drawing.Size(140, 196);
+            this.allSubs.Size = new System.Drawing.Size(171, 196);
             this.allSubs.TabIndex = 6;
             // 
             // button2
@@ -116,11 +116,22 @@
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
+            // button5
+            // 
+            this.button5.Location = new System.Drawing.Point(12, 470);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(98, 30);
+            this.button5.TabIndex = 10;
+            this.button5.Text = "Voltar";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
+            // 
             // SubscriptionForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(491, 482);
+            this.ClientSize = new System.Drawing.Size(491, 512);
+            this.Controls.Add(this.button5);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.allSubs);
@@ -130,7 +141,7 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.applications);
             this.Name = "SubscriptionForm";
-            this.Text = "Form1";
+            this.Text = "SubscriptionForm";
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -145,6 +156,7 @@
         private System.Windows.Forms.ListBox allSubs;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.Button button5;
     }
 }
 

@@ -36,8 +36,7 @@ namespace SOMIOD.AppGenerator
         private void button2_Click(object sender, EventArgs e)
         {
             var applicationName = applications.SelectedItem?.ToString();
-
-                CreateApplicationForm createApplicationForm = new CreateApplicationForm(false, Shared.GetApplication(client,applicationName));
+            CreateApplicationForm createApplicationForm = new CreateApplicationForm(false, Shared.GetApplication(client,applicationName));
             createApplicationForm.ShowDialog();
         }
 
@@ -57,7 +56,13 @@ namespace SOMIOD.AppGenerator
                 //show error message
             }
 
+            applications.DataSource = ((List<string>)applications.DataSource).FindAll(x => !String.Equals(x, applicationName));
             //show success message
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

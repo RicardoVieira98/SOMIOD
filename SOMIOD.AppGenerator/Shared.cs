@@ -68,7 +68,7 @@ namespace SOMIOD.AppGenerator
             {
                 foreach (XmlNode grandChildNode in childNode.ChildNodes)
                 {
-                    objectNames.Add(grandChildNode.Attributes[0].Value);
+                    objectNames.Add(grandChildNode.Attributes["name"].Value);
                 }
             }
 
@@ -92,8 +92,9 @@ namespace SOMIOD.AppGenerator
                 {
                     foreach (XmlNode grandChildNode in childNode.ChildNodes)
                     {
-                        app.Name = grandChildNode.Attributes[0].Value;
-                        app.CreatedDate = DateTime.Parse(grandChildNode.Attributes[1].Value);
+                        app.Id = Int32.Parse(grandChildNode.Attributes[0].Value);
+                        app.Name = grandChildNode.Attributes[1].Value;
+                        app.CreatedDate = DateTime.Parse(grandChildNode.Attributes[2].Value);
                     }
                 }
                 obj = app;
