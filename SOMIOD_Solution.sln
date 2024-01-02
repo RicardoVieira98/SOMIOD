@@ -21,7 +21,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SOMIOD.AppGenerator", "SOMI
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{12ECA4D9-3F3A-4C6D-851B-FAECDA227192}"
 EndProject
-Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Somiod.Database", "Somiod.Database\SOMIOD.Database.sqlproj", "{534AD55B-53D5-4C6F-810F-3A8FAF6AF0E0}"
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SOMIOD.Database", "Somiod.Database\SOMIOD.Database.sqlproj", "{534AD55B-53D5-4C6F-810F-3A8FAF6AF0E0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

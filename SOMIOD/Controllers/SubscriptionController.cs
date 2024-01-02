@@ -5,15 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Runtime.Remoting.Messaging;
 using System.Text;
-using System.Web;
 using System.Web.Http;
-using System.Web.UI;
 using System.Xml;
 using uPLibrary.Networking.M2Mqtt;
-using uPLibrary.Networking.M2Mqtt.Messages;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace SOMIOD.Controllers
 {

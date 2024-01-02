@@ -98,8 +98,34 @@ namespace SOMIOD.AppGenerator
 
             return SetObjectNamesList(response, "//applications");
         }
-
+            
         //SUBSCRIPTION
+        public static List<string> GetAllSubscriptionNames(HttpClient client)
+        {
+            WebClient.AddOperationTypeHeader(client, Library.Headers.Subscription);
+            var response = client.GetAsync(client.BaseAddress + "application/container");
+            if (!(response.Result.StatusCode == HttpStatusCode.OK))
+            {
+                ShowError(response.Result);
+                return null;
+            }
+
+            return Shared.SetObjectNamesList(response, "//subscriptions");
+        }
+
+        public static List<string> GetAllSubscriptionNamesFromContainer(HttpClient client, string applicationName, string containerName)
+        {
+            WebClient.AddOperationTypeHeader(client, Library.Headers.Subscription);
+            var response = client.GetAsync(client.BaseAddress + applicationName + "/" + containerName);
+            if (!(response.Result.StatusCode == HttpStatusCode.OK))
+            {
+                ShowError(response.Result);
+                return null;
+            }
+
+            return Shared.SetObjectNamesList(response, "//subscriptions");
+        }
+        
         public static bool DeleteSubscription(HttpClient client, string applicationName,string containerName, string subscriptionName)
         {
             var response = client.DeleteAsync(client.BaseAddress + applicationName + "/" + containerName + "/sub/" + subscriptionName);
