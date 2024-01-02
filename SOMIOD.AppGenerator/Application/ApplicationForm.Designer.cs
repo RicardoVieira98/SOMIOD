@@ -95,7 +95,7 @@
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
-            // ApplicationForm
+            // ContainerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -106,7 +106,7 @@
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.applications);
-            this.Name = "ApplicationForm";
+            this.Name = "ContainerForm";
             this.Text = "ApplicationForm";
             this.ResumeLayout(false);
 

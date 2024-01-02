@@ -50,22 +50,34 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApplicationForm.cs">
+    <Compile Include="Application\ApplicationForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ApplicationForm.Designer.cs">
+    <Compile Include="Application\ApplicationForm.Designer.cs">
       <DependentUpon>ApplicationForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="CreateApplicationForm.cs">
+    <Compile Include="Application\CreateApplicationForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="CreateApplicationForm.Designer.cs">
+    <Compile Include="Application\CreateApplicationForm.Designer.cs">
       <DependentUpon>CreateApplicationForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="CreateSubscriptionForm.cs">
+    <Compile Include="Container\ContainerForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="CreateSubscriptionForm.Designer.cs">
+    <Compile Include="Container\ContainerForm.Designer.cs">
+      <DependentUpon>ContainerForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Container\CreateContainerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Container\CreateContainerForm.Designer.cs">
+      <DependentUpon>CreateContainerForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Subscription\CreateSubscriptionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Subscription\CreateSubscriptionForm.Designer.cs">
       <DependentUpon>CreateSubscriptionForm.cs</DependentUpon>
     </Compile>
     <Compile Include="MainForm.cs">
@@ -76,27 +88,33 @@
     </Compile>
     <Compile Include="Shared.cs" />
     <Compile Include="WebClient.cs" />
-    <Compile Include="SubscriptionForm.cs">
+    <Compile Include="Subscription\SubscriptionForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="SubscriptionForm.Designer.cs">
+    <Compile Include="Subscription\SubscriptionForm.Designer.cs">
       <DependentUpon>SubscriptionForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="ApplicationForm.resx">
+    <EmbeddedResource Include="Application\ApplicationForm.resx">
       <DependentUpon>ApplicationForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="CreateApplicationForm.resx">
+    <EmbeddedResource Include="Application\CreateApplicationForm.resx">
       <DependentUpon>CreateApplicationForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="CreateSubscriptionForm.resx">
+    <EmbeddedResource Include="Container\ContainerForm.resx">
+      <DependentUpon>ContainerForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Container\CreateContainerForm.resx">
+      <DependentUpon>CreateContainerForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Subscription\CreateSubscriptionForm.resx">
       <DependentUpon>CreateSubscriptionForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="SubscriptionForm.resx">
+    <EmbeddedResource Include="Subscription\SubscriptionForm.resx">
       <DependentUpon>SubscriptionForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -127,6 +145,9 @@
       <Project>{4df718cf-c907-48d4-92ec-d86195762b95}</Project>
       <Name>SOMIOD.Library</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Data\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

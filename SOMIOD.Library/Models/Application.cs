@@ -14,9 +14,7 @@ namespace SOMIOD.Library.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        [XmlAttribute(AttributeName = "Name")]
         public string Name { get; set; }
-        [XmlAttribute(AttributeName = "CreatedDate")]
         public DateTime CreatedDate { get; set; }
     }
 }

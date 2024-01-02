@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SOMIOD.AppGenerator.Container;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -27,6 +28,12 @@ namespace SOMIOD.AppGenerator
         {
             SubscriptionForm subscriptionForm = new SubscriptionForm();
             subscriptionForm.ShowDialog();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            ContainerForm containerForm = new ContainerForm();
+            containerForm.ShowDialog();
         }
     }
 }

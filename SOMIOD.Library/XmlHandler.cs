@@ -54,6 +54,16 @@ namespace SOMIOD.Library
             return doc.OuterXml;
         }
 
+        public static string GetApplicationXml(Application application)
+        {
+            XmlDocument doc = new XmlDocument();
+
+            XmlElement element = SetApplicationXmlSection(application, doc);
+            doc.AppendChild(element);
+            return doc.OuterXml;
+        }
+
+
         public static string FullContainerXml(Container container, List<Subscription> subscriptions, List<Data> datas)
         {
             XmlDocument doc = new XmlDocument();
@@ -81,12 +91,24 @@ namespace SOMIOD.Library
         {
             XmlDocument doc = new XmlDocument();
 
+            XmlElement containerElements = doc.CreateElement("containers");
             foreach (var container in containers)
             {
                 SetContainerXmlSection(container, doc);   
             }
+            doc.AppendChild(containerElements);
             return doc.OuterXml;
         }
+
+        public static string GetContainerXml(Container container)
+        {
+            XmlDocument doc = new XmlDocument();
+
+            XmlElement element = SetContainerXmlSection(container, doc);
+            doc.AppendChild(element);
+            return doc.OuterXml;
+        }
+
 
         public static string OnlySubscriptionsXml(List<Subscription> subscriptions)
         {
@@ -102,15 +124,6 @@ namespace SOMIOD.Library
             return doc.OuterXml;
         }
 
-        public static string GetApplicationXml(Application application)
-        {
-            XmlDocument doc = new XmlDocument();
-
-            XmlElement element = SetApplicationXmlSection(application,doc);
-            doc.AppendChild(element);
-            return doc.OuterXml;
-        }
-
         public static string GetSubscriptionXml(Subscription subscription)
         {
             XmlDocument doc = new XmlDocument();
@@ -120,16 +133,29 @@ namespace SOMIOD.Library
             return doc.OuterXml;
         }
 
+
         public static string OnlyDataXml(List<Data> datas)
         {
             XmlDocument doc = new XmlDocument();
 
+            XmlElement dataElements = doc.CreateElement("datas");
             foreach (var data in datas)
             {
                 SetDataXmlSection(data, doc);
             }
+            doc.AppendChild(dataElements);
             return doc.OuterXml;
         }
+        public static string GetDataXml(Data data)
+        {
+            XmlDocument doc = new XmlDocument();
+
+            XmlElement element = SetDataXmlSection(data, doc);
+            doc.AppendChild(element);
+            return doc.OuterXml;
+        }
+
+
 
         private static XmlElement SetApplicationXmlSection(Application app, XmlDocument doc)
         {

@@ -11,6 +11,7 @@ using System.CodeDom;
 using System.Net;
 using System.Windows.Forms;
 using Application = SOMIOD.Library.Models.Application;
+using Container = SOMIOD.Library.Models.Container;
 
 namespace SOMIOD.AppGenerator
 {
@@ -59,7 +60,7 @@ namespace SOMIOD.AppGenerator
         }
 
         //CONTAINERS
-        public static Container GetContainer(HttpClient client, string applicationName, string containerName)
+        public static Library.Models.Container GetContainer(HttpClient client, string applicationName, string containerName)
         {
             var response = client.GetAsync(client.BaseAddress + applicationName + "/" + containerName);
 
@@ -69,8 +70,8 @@ namespace SOMIOD.AppGenerator
                 return null;
             }
 
-            Container app = new Container();
-            return GetObject(response, app) as Container;
+            Library.Models.Container app = new Library.Models.Container();
+            return GetObject(response, app) as Library.Models.Container;
         }
 
         public static List<string> GetAllContainersNamesFromApplication(HttpClient client, string applicationName)
@@ -98,7 +99,19 @@ namespace SOMIOD.AppGenerator
 
             return SetObjectNamesList(response, "//applications");
         }
-            
+
+        public static bool DeleteContainer(HttpClient client, string applicationName, string containername)
+        {
+            var response = client.DeleteAsync(client.BaseAddress + applicationName + "/" + containername);
+
+            if (response.Result.StatusCode != HttpStatusCode.OK)
+            {
+                Shared.ShowError(response.Result);
+                return false;
+            }
+            return true;
+        }
+
         //SUBSCRIPTION
         public static List<string> GetAllSubscriptionNames(HttpClient client)
         {
@@ -183,9 +196,9 @@ namespace SOMIOD.AppGenerator
                 }
                 obj = app;
             }
-            else if (obj.GetType() == typeof(Container))
+            else if (obj.GetType() == typeof(Library.Models.Container))
             {
-                Container con = (Container)obj;
+                Library.Models.Container con = (Library.Models.Container)obj;
 
                 XmlNodeList rootNode = xmlDocument.SelectNodes("//containers");
 

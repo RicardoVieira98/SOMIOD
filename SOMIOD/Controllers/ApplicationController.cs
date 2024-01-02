@@ -42,11 +42,6 @@ namespace SOMIOD.Controllers
                     return Content(HttpStatusCode.InternalServerError, "Error getting application of database");
                 }
 
-                if (apps.Count is 0)
-                {
-                    return NotFound();
-                }
-
                 return Ok(XmlHandler.OnlyApplicationsXml(apps));
             }
             catch(Exception ex)

@@ -22,12 +22,12 @@ namespace SOMIOD.Controllers
         }
 
         [HttpGet]
-        [Route("somiod/{applicationName}/{containerName}/sub")]
+        [Route("somiod/{applicationName}/{containerName}/sub/{subscriptionName}")]
         public IHttpActionResult GetSubscription(string applicationName, string containerName, string subscriptionName)
         {
             try
             {
-                if (Shared.AreArgsEmpty(new List<string> { applicationName, containerName }))
+                if (Shared.AreArgsEmpty(new List<string> { applicationName, containerName, subscriptionName }))
                 {
                     return BadRequest("Input form had empty field/s, please fill all mandatory fields");
                 }
@@ -59,7 +59,7 @@ namespace SOMIOD.Controllers
         }
 
         [HttpGet]
-        [Route("somiod/{applicationName}/{containerName}")] //RICARDO TEST IF LIST OF SUBSCRIPTIONS RETURN AS GOOD XML
+        [Route("somiod/{applicationName}/{containerName}/sub")]
         public IHttpActionResult GetSubscriptionsByContainer(string applicationName,string containerName)
         {
             try
@@ -106,7 +106,7 @@ namespace SOMIOD.Controllers
         }
 
         [HttpGet]
-        [Route("somiod/application/container")]
+        [Route("somiod/application/container/sub")]
         public IHttpActionResult GetSubscriptions()
         {
             try
@@ -140,7 +140,7 @@ namespace SOMIOD.Controllers
         }
 
         [HttpPost]
-        [Route("somiod/{applicationName}/{containerName}/")]
+        [Route("somiod/{applicationName}/{containerName}/sub")]
         public IHttpActionResult PostSubscription(string applicationName, string containerName, [FromBody]XmlElement subscription)  
         {
             try
@@ -197,7 +197,7 @@ namespace SOMIOD.Controllers
         }
 
         [HttpDelete]
-        [Route("somiod/{applicationName}/{containerName}/sub")]
+        [Route("somiod/{applicationName}/{containerName}/sub/{subscriptionName}")]
         public IHttpActionResult DeleteSubscription(string applicationName,string containerName, string subscriptionName)
         {
             try
@@ -210,7 +210,7 @@ namespace SOMIOD.Controllers
                 if(!Shared.DoesApplicationExist(_context, applicationName) ||
                     !Shared.DoesContainerExist(_context, containerName))
                 {
-                    return Content(HttpStatusCode.Conflict, "Subscription parent you are trying to insert does not exists, or the containers parent's does not exist, please insert a subscription with an existing container associated and the container associated with an existing application");
+                    return Content(HttpStatusCode.Conflict, "Subscription parent you are trying to delete does not exists, or the containers parent's does not exist, please insert a subscription with an existing container associated and the container associated with an existing application");
                 }
 
                 if (!DoesSubscriptionExist(subscriptionName))
