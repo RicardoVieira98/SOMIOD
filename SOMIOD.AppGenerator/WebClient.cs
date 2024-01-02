@@ -11,7 +11,7 @@ namespace SOMIOD.AppGenerator
 {
     public class WebClient
     {
-        static HttpClient client = new HttpClient();
+        static HttpClient client;
         public WebClient() 
         {
         }

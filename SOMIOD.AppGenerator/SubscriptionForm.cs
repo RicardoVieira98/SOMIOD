@@ -32,13 +32,6 @@ namespace SOMIOD.AppGenerator
             allSubs.DataSource = GetAllSubscriptionNames(httpClient);
         }
 
-        //Delete Subscription
-        private void button4_Click(object sender, EventArgs e)
-        {
-            //show confirmation window
-            DeleteSubscription();
-        }
-
         //Create Subscription
         private void button2_Click(object sender, EventArgs e)
         {
@@ -46,19 +39,31 @@ namespace SOMIOD.AppGenerator
             form.ShowDialog();
         }
 
+        //Delete Subscription
+        private void button4_Click(object sender, EventArgs e)
+        {
+            //show confirmation window
+            DeleteSubscription();
+        }
+
+        //Back button
+        private void button5_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
         private void applications_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //var selected = applications.SelectedItems[0];
-            //string APIPath = $"http://localhost:59707/somiod/{selected}";
-            //HttpClient client = new HttpClient();
-            //var response = client.GetAsync(APIPath);
-            //if (!(response.Result.StatusCode == System.Net.HttpStatusCode.OK))
-            //{
-            //    //show error message
-            //}
+            var selectedApplication = applications.SelectedItems[0].ToString();
 
-            //var listaContainers = response.Result.Content;
-            //containers.DataSource = listaContainers;
+            containers.DataSource = Shared.GetAllContainersNamesFromApplication(httpClient, selectedApplication);
+        }
+
+        private void containers_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var selectedApplication = applications.SelectedItems[0].ToString();
+            var selectedContainer = containers.SelectedItems[0].ToString();
+            containers.DataSource = GetAllSubscriptionNamesFromContainer(httpClient, selectedApplication, selectedContainer);
         }
 
         private List<string> GetAllSubscriptionNames(HttpClient client)
@@ -74,17 +79,17 @@ namespace SOMIOD.AppGenerator
             return Shared.SetObjectNamesList(response,"//subscriptions");
         }
 
-        private List<string> GetAllSubscriptionNamesFromContainer(HttpClient client, string containerName)
+        private List<string> GetAllSubscriptionNamesFromContainer(HttpClient client, string applicationName, string containerName)
         {
             WebClient.AddOperationTypeHeader(client, Library.Headers.Subscription);
-            var response = client.GetAsync(client.BaseAddress + "application/" + containerName );
+            var response = client.GetAsync(client.BaseAddress + applicationName + "/" + containerName );
             if (!(response.Result.StatusCode == System.Net.HttpStatusCode.OK))
             {
                 //show error message
                 return null;
             }
 
-            return Shared.SetObjectNamesList(response,"//applications");
+            return Shared.SetObjectNamesList(response,"//subscriptions");
         }
 
         private void DeleteSubscription()
@@ -98,11 +103,6 @@ namespace SOMIOD.AppGenerator
             {
                 //show error message
             }
-        }
-
-        private void button5_Click(object sender, EventArgs e)
-        {
-            this.Close();
         }
     }
 }

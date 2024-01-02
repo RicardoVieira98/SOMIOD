@@ -76,6 +76,7 @@
             this.containers.Name = "containers";
             this.containers.Size = new System.Drawing.Size(120, 84);
             this.containers.TabIndex = 4;
+            this.containers.SelectedIndexChanged += new System.EventHandler(this.containers_SelectedIndexChanged);
             // 
             // subscriptions
             // 

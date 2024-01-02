@@ -15,19 +15,7 @@ namespace SOMIOD.AppGenerator
     {
         public Shared() { }
 
-        public static List<string> GetAllApplicationNames(HttpClient client)
-        {
-            WebClient.AddOperationTypeHeader(client, Library.Headers.Application);
-            var response = client.GetAsync(client.BaseAddress);
-            if (!(response.Result.StatusCode == System.Net.HttpStatusCode.OK))
-            {
-                //show error message
-                return null;
-            }
-
-            return SetObjectNamesList(response, "//applications");
-        }
-
+        //APPLICATIONS
         public static Application GetApplication(HttpClient client, string applicationName)
         {
             var response = client.GetAsync(client.BaseAddress + applicationName);
@@ -41,10 +29,10 @@ namespace SOMIOD.AppGenerator
             return GetObject(response, app) as Application;
         }
 
-        public static List<string> GetAllContainersNamesFromApplication(HttpClient client, string applicationName)
+        public static List<string> GetAllApplicationNames(HttpClient client)
         {
-            WebClient.AddOperationTypeHeader(client, Library.Headers.Container);
-            var response = client.GetAsync(client.BaseAddress + "/" + applicationName);
+            WebClient.AddOperationTypeHeader(client, Library.Headers.Application);
+            var response = client.GetAsync(client.BaseAddress);
             if (!(response.Result.StatusCode == System.Net.HttpStatusCode.OK))
             {
                 //show error message
@@ -53,6 +41,48 @@ namespace SOMIOD.AppGenerator
 
             return SetObjectNamesList(response, "//applications");
         }
+
+        //CONTAINERS
+        public static Container GetContainer(HttpClient client, string applicationName, string containerName)
+        {
+            var response = client.GetAsync(client.BaseAddress + applicationName + "/" + containerName);
+
+            if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                //show error message
+            }
+
+            Container app = new Container();
+            return GetObject(response, app) as Container;
+        }
+
+        public static List<string> GetAllContainersNamesFromApplication(HttpClient client, string applicationName)
+        {
+            WebClient.AddOperationTypeHeader(client, Library.Headers.Container);
+            var response = client.GetAsync(client.BaseAddress + "/" + applicationName + "/con");
+            if (!(response.Result.StatusCode == System.Net.HttpStatusCode.OK))
+            {
+                //show error message
+                return null;
+            }
+
+            return SetObjectNamesList(response, "//applications");
+        }
+
+        public static List<string> GetAllContainersNames(HttpClient client)
+        {
+            WebClient.AddOperationTypeHeader(client, Library.Headers.Container);
+            var response = client.GetAsync(client.BaseAddress + "/application");
+            if (!(response.Result.StatusCode == System.Net.HttpStatusCode.OK))
+            {
+                //show error message
+                return null;
+            }
+
+            return SetObjectNamesList(response, "//applications");
+        }
+
+        //MISC
 
         public static List<string> SetObjectNamesList(Task<HttpResponseMessage> response, string queryNode)
         {
