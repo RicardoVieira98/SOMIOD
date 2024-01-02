@@ -41,8 +41,8 @@ namespace SOMIOD.AppGenerator
             var response = MessageBox.Show("Are you sure you want to delete this application?", "Delete Application", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
             if (response == DialogResult.Yes)
             {
-                DeleteApplication();
-                MessageBox.Show("Application deleted successfully", "Delete Application", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                var deleted = DeleteApplication();
+                if(deleted) MessageBox.Show("Application deleted successfully", "Delete Application", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -52,11 +52,16 @@ namespace SOMIOD.AppGenerator
             this.Close();
         }
 
-        private void DeleteApplication()
+        private bool DeleteApplication()
         {
             string applicationName = applications.SelectedItem?.ToString();
-            Shared.DeleteApplication(client,applicationName);
-            applications.DataSource = ((List<string>)applications.DataSource).FindAll(x => !String.Equals(x, applicationName));
+            var res = Shared.DeleteApplication(client,applicationName);
+            if (res)
+            {
+                applications.DataSource = ((List<string>)applications.DataSource).FindAll(x => !String.Equals(x, applicationName));
+            }
+            return res;
+
         }
     }
 }

@@ -43,10 +43,10 @@ namespace SOMIOD.AppGenerator
         private void button4_Click(object sender, EventArgs e)
         {
             var response = MessageBox.Show("Are you sure you want to delete this subscription?", "Delete Subscription", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
-            if(response == DialogResult.Yes)
+            if (response == DialogResult.Yes)
             {
-                DeleteSubscription();
-                MessageBox.Show("Subscription deleted successfully", "Delete Subscription", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                var deleted = DeleteSubscription();
+                if(deleted) MessageBox.Show("Subscription deleted successfully", "Delete Subscription", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -80,30 +80,34 @@ namespace SOMIOD.AppGenerator
                 return null;
             }
 
-            return Shared.SetObjectNamesList(response,"//subscriptions");
+            return Shared.SetObjectNamesList(response, "//subscriptions");
         }
 
         private List<string> GetAllSubscriptionNamesFromContainer(HttpClient client, string applicationName, string containerName)
         {
             WebClient.AddOperationTypeHeader(client, Library.Headers.Subscription);
-            var response = client.GetAsync(client.BaseAddress + applicationName + "/" + containerName );
+            var response = client.GetAsync(client.BaseAddress + applicationName + "/" + containerName);
             if (!(response.Result.StatusCode == System.Net.HttpStatusCode.OK))
             {
                 //show error message
                 return null;
             }
 
-            return Shared.SetObjectNamesList(response,"//subscriptions");
+            return Shared.SetObjectNamesList(response, "//subscriptions");
         }
 
-        private void DeleteSubscription()
+        private bool DeleteSubscription()
         {
             string applicationName = applications.SelectedItem.ToString();
             string containerName = containers.SelectedItem.ToString();
             string subscriptionName = subscriptions.SelectedItem.ToString();
 
-            Shared.DeleteSubscription(httpClient, applicationName, containerName, subscriptionName);
-            subscriptions.DataSource = ((List<string>)subscriptions.DataSource).FindAll(x => !String.Equals(x, subscriptionName));
+            var res = Shared.DeleteSubscription(httpClient, applicationName, containerName, subscriptionName);
+            if (res)
+            {
+                subscriptions.DataSource = ((List<string>)subscriptions.DataSource).FindAll(x => !String.Equals(x, subscriptionName));
+            }
+            return res;
         }
     }
 }

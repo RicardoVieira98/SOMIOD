@@ -46,14 +46,16 @@ namespace SOMIOD.AppGenerator
             return SetObjectNamesList(response, "//applications");
         }
 
-        public static void DeleteApplication(HttpClient client, string applicationName)
+        public static bool DeleteApplication(HttpClient client, string applicationName)
         {
             var response = client.DeleteAsync(client.BaseAddress + applicationName);
 
             if (response.Result.StatusCode != HttpStatusCode.OK)
             {
                 Shared.ShowError(response.Result);
+                return false;
             }
+            return true;
         }
 
         //CONTAINERS
@@ -98,13 +100,15 @@ namespace SOMIOD.AppGenerator
         }
 
         //SUBSCRIPTION
-        public static void DeleteSubscription(HttpClient client, string applicationName,string containerName, string subscriptionName)
+        public static bool DeleteSubscription(HttpClient client, string applicationName,string containerName, string subscriptionName)
         {
             var response = client.DeleteAsync(client.BaseAddress + applicationName + "/" + containerName + "/sub/" + subscriptionName);
             if (response.Result.StatusCode != HttpStatusCode.OK)
             {
                 Shared.ShowError(response.Result);
+                return false;
             }
+            return true;
         }
 
         //MISC
