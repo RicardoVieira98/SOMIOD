@@ -13,6 +13,7 @@ using System.Web.UI;
 using System.Xml;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SOMIOD.Controllers
 {
@@ -31,11 +32,15 @@ namespace SOMIOD.Controllers
         {
             try
             {
-                if (Shared.AreArgsEmpty(new List<string> { applicationName, containerName, subscriptionName }) ||
-                    !Shared.DoesApplicationExist(_context, applicationName) || 
-                    !Shared.DoesContainerExist(_context,containerName))
+                if (Shared.AreArgsEmpty(new List<string> { applicationName, containerName }))
                 {
-                    return BadRequest();
+                    return BadRequest("Input form had empty field/s, please fill all mandatory fields");
+                }
+
+                if (!Shared.DoesApplicationExist(_context, applicationName) ||
+                    !Shared.DoesContainerExist(_context, containerName))
+                {
+                    return BadRequest("Application or container requested do not exist on our database");
                 }
 
                 if (!DoesSubscriptionExist(subscriptionName))
@@ -44,6 +49,12 @@ namespace SOMIOD.Controllers
                 }
 
                 var sub = _context.Subscriptions.Where(x => String.Equals(x.Name, subscriptionName)).ToList();
+
+                if (sub is null)
+                {
+                    return Content(HttpStatusCode.InternalServerError, "Error getting list of subcriptions of database");
+                }
+
                 return Ok(XmlHandler.OnlySubscriptionsXml(sub));
             }
             catch (Exception ex)
@@ -58,27 +69,36 @@ namespace SOMIOD.Controllers
         {
             try
             {
-                if (Shared.AreArgsEmpty(new List<string> { applicationName, containerName }) || 
-                    !Shared.DoesApplicationExist(_context,applicationName) || 
+                if (Shared.AreArgsEmpty(new List<string> { applicationName, containerName }))
+                {
+                    return BadRequest("Input form had empty field/s, please fill all mandatory fields");
+                }
+
+                if (!Shared.DoesApplicationExist(_context,applicationName) || 
                     !Shared.DoesContainerExist(_context, containerName))
                 {
-                    return BadRequest();
+                    return BadRequest("Application or container sent do not exist on our database");
                 }
 
                 if (Request.Headers.Count() < 1 ||
                     Request.Headers.Any(x => x.Key == "somiod-discover") ||
                     !string.Equals(Request.Headers.First(x => x.Key == "somiod-discover").Value.FirstOrDefault(), Headers.Subscription.ToString().ToLower()))
                 {
-                    return BadRequest();
+                    return BadRequest("Header was not found or incorrect, please make sure you are sending a correct header with the operation-type necessary");
                 }
 
-                var conId = _context.Containers.SingleOrDefault(x => string.Equals(x.Name,containerName)).Id;
+                var conId = _context.Containers.SingleOrDefault(x => string.Equals(x.Name,containerName))?.Id;
 
                 var subs = _context.Subscriptions.Where(x => x.Parent == conId).ToList();
 
-                if(subs is null || subs.Count() == 0)
+                if (subs is null)
                 {
-                    return Content(HttpStatusCode.InternalServerError, $"Error getting list of subcriptions of container: {containerName}");
+                    return Content(HttpStatusCode.InternalServerError, "Error getting list of subcriptions of database");
+                }
+
+                if (subs.Count is 0)
+                {
+                    return NotFound();
                 }
 
                 _context.SaveChanges();
@@ -100,14 +120,19 @@ namespace SOMIOD.Controllers
                     !Request.Headers.Any(x => x.Key == "somiod-discover") ||
                     !string.Equals(Request.Headers.First(x => x.Key == "somiod-discover").Value.FirstOrDefault(), Headers.Subscription.ToString()))
                 {
-                    return BadRequest();
+                    return BadRequest("Header was not found or incorrect, please make sure you are sending a correct header with the operation-type necessary");
                 }
 
                 var subs = _context.Subscriptions.ToList();
 
                 if (subs is null)
                 {
-                    return Content(HttpStatusCode.InternalServerError, $"Error getting list of subcriptions");
+                    return Content(HttpStatusCode.InternalServerError, "Error getting list of subcriptions of database");
+                }
+
+                if (subs.Count is 0)
+                {
+                    return NotFound();
                 }
 
                 _context.SaveChanges();
@@ -125,11 +150,21 @@ namespace SOMIOD.Controllers
         {
             try
             {
-                if (Shared.AreArgsEmpty(new List<string> { applicationName, containerName }) ||
-                    !Shared.DoesApplicationExist(_context, applicationName) || 
-                    !Shared.DoesContainerExist(_context, containerName))
+                if (Shared.AreArgsEmpty(new List<string> { applicationName, containerName }))
                 {
-                    return BadRequest();
+                    return BadRequest("Input form had empty field/s, please fill all mandatory fields");
+                }
+
+                if (subscription is null || subscription.Attributes?.Count < 1)
+                {
+                    return BadRequest("Form sent is incomplete");
+                }
+
+                if (!Shared.IsDateCreatedCorrect(DateTime.Parse(subscription.Attributes[1].Value)) ||
+                    !Enum.IsDefined(typeof(Events), subscription.Attributes[2].Value) ||
+                    string.IsNullOrEmpty(subscription.Attributes[3].Value))
+                {
+                    return BadRequest("Input form is not correct, please make sure all fields are correct before creating a new subscription");
                 }
 
                 var sub = new Subscription()
@@ -143,20 +178,19 @@ namespace SOMIOD.Controllers
 
                 if (DoesSubscriptionExist(sub.Name))
                 {
-                    return Content(HttpStatusCode.Conflict, "Resource already exists");
+                    return Content(HttpStatusCode.Conflict, "Subscription already exists");
                 }
 
-                //RICARDO TEST
-                if (!Shared.IsDateCreatedCorrect(sub.CreatedDate) ||
-                    !IsSubscriptionConnected(applicationName, containerName, sub) ||
-                    !Enum.IsDefined(typeof(Events), sub.Event) ||
-                    string.IsNullOrEmpty(sub.Endpoint))
+                if (!IsSubscriptionConnected(applicationName, containerName, sub))
                 {
-                    return BadRequest();
+                    return Content(HttpStatusCode.Conflict,"Subscription parent you are trying to insert does not exists, or the containers parent's does not exist, please insert a subscription with an existing container associated and the container associated with an existing application");
                 }
 
                 var entity = _context.Subscriptions.Add(sub);
-                if (entity is null) return Content(HttpStatusCode.InternalServerError, "Error Inserting new Subscription");
+                if (entity is null)
+                {
+                    return Content(HttpStatusCode.InternalServerError, "Error Inserting new subscription into database");
+                }
                 _context.SaveChanges();
                 return Ok();
 
@@ -173,14 +207,18 @@ namespace SOMIOD.Controllers
         {
             try
             {
-                if (Shared.AreArgsEmpty(new List<string> { applicationName, containerName, subscriptionName }) ||
-                    !Shared.DoesApplicationExist(_context, applicationName) || 
-                    !Shared.DoesContainerExist(_context, containerName))
+                if (Shared.AreArgsEmpty(new List<string> { applicationName, containerName, subscriptionName }))
                 {
-                    return BadRequest();
+                    return BadRequest("Input form had empty field/s, please fill all mandatory fields");
                 }
 
-                if(!DoesSubscriptionExist(subscriptionName))
+                if(!Shared.DoesApplicationExist(_context, applicationName) ||
+                    !Shared.DoesContainerExist(_context, containerName))
+                {
+                    return Content(HttpStatusCode.Conflict, "Subscription parent you are trying to insert does not exists, or the containers parent's does not exist, please insert a subscription with an existing container associated and the container associated with an existing application");
+                }
+
+                if (!DoesSubscriptionExist(subscriptionName))
                 {
                     return NotFound();
                 }
@@ -188,8 +226,10 @@ namespace SOMIOD.Controllers
                 var dbSub = _context.Subscriptions.SingleOrDefault(x => string.Equals(x.Name, subscriptionName));
 
                 var entity = _context.Subscriptions.Remove(dbSub);
-                if (entity is null) return Content(HttpStatusCode.InternalServerError, "Error deleting subscription");
-                
+                if (entity is null)
+                {
+                    return Content(HttpStatusCode.InternalServerError, "Error deleting subscription");
+                }
                 _context.SaveChanges();
                 return Ok();
 
@@ -207,9 +247,12 @@ namespace SOMIOD.Controllers
 
         private bool IsSubscriptionConnected(string applicationName, string containerName, Subscription sub)
         {
-            int? appId = _context.Applications.FirstOrDefault(x => x.Name == applicationName)?.Id;
-            int? conId = _context.Containers.FirstOrDefault(x => x.Name == containerName)?.Id;
-            return _context.Subscriptions.Any(x => x.Id == sub.Id && x.Parent == conId) && _context.Containers.Any(x => x.Id == sub.Parent && x.Parent == appId); 
+
+            if (!Shared.DoesApplicationExist(_context, applicationName) || !Shared.DoesContainerExist(_context, containerName)) return false;
+
+            int? appId = _context.Applications.FirstOrDefault(x => string.Equals(x.Name,applicationName))?.Id;
+            int? conId = _context.Containers.FirstOrDefault(x => string.Equals(x.Name,containerName))?.Id;
+            return _context.Subscriptions.Any(x => string.Equals(x.Name,sub.Name) && x.Parent == conId) && _context.Containers.Any(x => x.Id == sub.Parent && x.Parent == appId); 
         }
 
         [Obsolete]

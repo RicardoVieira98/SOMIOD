@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml;
 using System.CodeDom;
+using System.Net;
+using System.Windows.Forms;
+using Application = SOMIOD.Library.Models.Application;
 
 namespace SOMIOD.AppGenerator
 {
@@ -20,9 +23,10 @@ namespace SOMIOD.AppGenerator
         {
             var response = client.GetAsync(client.BaseAddress + applicationName);
 
-            if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+            if (response.Result.StatusCode != HttpStatusCode.OK)
             {
-                //show error message
+                ShowError(response.Result);
+                return null;
             }
 
             Application app = new Application();
@@ -33,13 +37,23 @@ namespace SOMIOD.AppGenerator
         {
             WebClient.AddOperationTypeHeader(client, Library.Headers.Application);
             var response = client.GetAsync(client.BaseAddress);
-            if (!(response.Result.StatusCode == System.Net.HttpStatusCode.OK))
+            if (!(response.Result.StatusCode == HttpStatusCode.OK))
             {
-                //show error message
+                ShowError(response.Result);
                 return null;
             }
 
             return SetObjectNamesList(response, "//applications");
+        }
+
+        public static void DeleteApplication(HttpClient client, string applicationName)
+        {
+            var response = client.DeleteAsync(client.BaseAddress + applicationName);
+
+            if (response.Result.StatusCode != HttpStatusCode.OK)
+            {
+                Shared.ShowError(response.Result);
+            }
         }
 
         //CONTAINERS
@@ -47,9 +61,10 @@ namespace SOMIOD.AppGenerator
         {
             var response = client.GetAsync(client.BaseAddress + applicationName + "/" + containerName);
 
-            if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
+            if (response.Result.StatusCode != HttpStatusCode.OK)
             {
-                //show error message
+                ShowError(response.Result);
+                return null;
             }
 
             Container app = new Container();
@@ -62,7 +77,7 @@ namespace SOMIOD.AppGenerator
             var response = client.GetAsync(client.BaseAddress + "/" + applicationName + "/con");
             if (!(response.Result.StatusCode == System.Net.HttpStatusCode.OK))
             {
-                //show error message
+                ShowError(response.Result);
                 return null;
             }
 
@@ -75,15 +90,24 @@ namespace SOMIOD.AppGenerator
             var response = client.GetAsync(client.BaseAddress + "/application");
             if (!(response.Result.StatusCode == System.Net.HttpStatusCode.OK))
             {
-                //show error message
+                ShowError(response.Result);
                 return null;
             }
 
             return SetObjectNamesList(response, "//applications");
         }
 
-        //MISC
+        //SUBSCRIPTION
+        public static void DeleteSubscription(HttpClient client, string applicationName,string containerName, string subscriptionName)
+        {
+            var response = client.DeleteAsync(client.BaseAddress + applicationName + "/" + containerName + "/sub/" + subscriptionName);
+            if (response.Result.StatusCode != HttpStatusCode.OK)
+            {
+                Shared.ShowError(response.Result);
+            }
+        }
 
+        //MISC
         public static List<string> SetObjectNamesList(Task<HttpResponseMessage> response, string queryNode)
         {
             var result = XElement.Parse(response.Result.Content.ReadAsStringAsync().Result).Value;
@@ -171,6 +195,26 @@ namespace SOMIOD.AppGenerator
             }
 
             return obj;
+        }
+
+        private static void ShowError(HttpResponseMessage response)
+        {
+            switch(response.StatusCode)
+            {
+                case HttpStatusCode.BadRequest:
+                    MessageBox.Show(response.Content.ReadAsStringAsync().Result, "Bad Request", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    break;
+                case HttpStatusCode.NotFound:
+                    MessageBox.Show("Resource you requested was not found in our database", "Not Found", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    break;
+                case HttpStatusCode.Conflict:
+                    MessageBox.Show(response.Content.ReadAsStringAsync().Result, "Conflit", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    break;
+                case HttpStatusCode.InternalServerError:
+                    MessageBox.Show(response.Content.ReadAsStringAsync().Result, "Server Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    break;
+                default: break;
+            }
         }
     }
 }

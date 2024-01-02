@@ -1,12 +1,12 @@
 ﻿using SOMIOD.Data;
 using SOMIOD.Library;
-using SOMIOD.Library.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web.Http;
 using System.Xml;
+using Application = SOMIOD.Library.Models.Application;
 
 namespace SOMIOD.Controllers
 {
@@ -27,12 +27,22 @@ namespace SOMIOD.Controllers
             {
                 if (Shared.AreArgsEmpty(new List<string> { applicationName }))
                 {
-                    //RICARDO SEND NICER MESSAGES
-                    return BadRequest();
+                    return BadRequest("Requested resource is empty, please request a resource");
                 }
 
-                var apps = _context.Applications.Where(x => x.Name.ToLower() == applicationName.ToLower()).ToList();
+                if(!Shared.DoesApplicationExist(_context,applicationName))
+                {
+                    return NotFound();
+                }
+
+                var apps = _context.Applications.Where(x => string.Equals(x.Name,applicationName)).ToList();
+
                 if (apps is null)
+                {
+                    return Content(HttpStatusCode.InternalServerError, "Error getting application of database");
+                }
+
+                if (apps.Count is 0)
                 {
                     return NotFound();
                 }
@@ -52,13 +62,23 @@ namespace SOMIOD.Controllers
             try
             {
                 if (Request.Headers.Count() < 1 ||
-                    !Request.Headers.Any(x => x.Key == "somiod-discover") ||
+                    Request.Headers.All(x => x.Key != "somiod-discover") ||
                     !string.Equals(Request.Headers.First(x => x.Key == "somiod-discover").Value.FirstOrDefault(), Headers.Application.ToString()))
                 {
-                    return BadRequest();
+                    return BadRequest("Header was not found or incorrect, please make sure you are sending a correct header with the operation-type necessary");
                 }
 
                 var applications = _context.Applications.ToList();
+                if (applications is null)
+                {
+                    return Content(HttpStatusCode.InternalServerError, "Error getting applications of database");
+                }
+
+                if (applications.Count is 0)
+                {
+                    return NotFound();
+                }
+
                 return Ok(XmlHandler.OnlyApplicationsXml(applications));
             }
             catch (Exception ex)
@@ -69,25 +89,36 @@ namespace SOMIOD.Controllers
 
         [HttpPost]
         [Route("somiod")]
-        public IHttpActionResult PostApplication([FromBody] XmlElement data)
+        public IHttpActionResult PostApplication([FromBody] XmlElement application)
         {
             try
             {
-                if (data is null || data.Attributes?.Count < 1) 
-                { 
-                    return BadRequest(); 
+                if (application is null || application.Attributes?.Count < 1)
+                {
+                    return BadRequest("Form sent is empty");
                 }
 
-                var dbApp = new Application()
+                if (string.IsNullOrEmpty(application.Attributes[1].Value) ||
+                    !Shared.IsDateCreatedCorrect(DateTime.Parse(application.Attributes[2].Value)))
                 {
-                    Name = data.Attributes[0]?.Value,
-                    CreatedDate = DateTime.Parse(data.Attributes[1]?.Value)
+                    return BadRequest("Input form is not correct, please make sure all fields are filled correctly before updating a application");
+                }
+
+                var newApp = new Application()
+                {
+                    Name = application.Attributes[1]?.Value,
+                    CreatedDate = DateTime.Parse(application.Attributes[2]?.Value)
                 };
 
-                var entity = _context.Applications.Add(dbApp);
+                if(Shared.DoesApplicationExist(_context, newApp.Name))
+                {
+                    return Content(HttpStatusCode.Conflict, "Application already exists");
+                }
+
+                var entity = _context.Applications.Add(newApp);
                 if (entity is null)
                 {
-                    return Content(HttpStatusCode.InternalServerError, "Error Inserting new Application");
+                    return Content(HttpStatusCode.InternalServerError, "Error Inserting new Application in our database");
                 }
                 _context.SaveChanges();
                 return Ok();
@@ -100,26 +131,37 @@ namespace SOMIOD.Controllers
 
         [HttpPut]
         [Route("somiod")]
-        public IHttpActionResult PutApplication([FromBody] XmlElement data)
+        public IHttpActionResult PutApplication([FromBody] XmlElement application)
         {
             try
             {
-                if (data is null || data.Attributes?.Count < 1)
+                if (application is null || application.Attributes?.Count < 1)
                 {
-                    return BadRequest();
+                    return BadRequest("Form sent is empty");
+                }
+
+                if (string.IsNullOrEmpty(application.Attributes[1].Value) ||
+                    !Shared.IsDateCreatedCorrect(DateTime.Parse(application.Attributes[2].Value)))
+                {
+                    return BadRequest("Input form is not correct, please make sure all fields are filled correctly before updating a application");
                 }
 
                 var app = new Application()
                 {
-                    Id = Int32.Parse(data.Attributes[0]?.Value),
-                    Name = data.Attributes[1]?.Value,
-                    CreatedDate = DateTime.Parse(data.Attributes[2]?.Value)
+                    Id = Int32.Parse(application.Attributes[0]?.Value),
+                    Name = application.Attributes[1]?.Value,
+                    CreatedDate = DateTime.Parse(application.Attributes[2]?.Value)
                 };
+
+                if (!Shared.DoesApplicationExist(_context, app.Name))
+                {
+                    return NotFound();
+                }
 
                 var dbApp = _context.Applications.SingleOrDefault(x => x.Id == app.Id);
                 if (dbApp is null)
                 {
-                    return BadRequest();
+                    return Content(HttpStatusCode.InternalServerError, "Error updating application in our database");
                 }
 
                 dbApp.Name = app.Name;
@@ -141,8 +183,8 @@ namespace SOMIOD.Controllers
             try
             {
                 if (Shared.AreArgsEmpty(new List<string> { applicationName})) 
-                { 
-                    return BadRequest(); 
+                {
+                    return BadRequest("Input form had empty field/s, please fill all mandatory fields");
                 }
 
                 var entity = _context.Applications.FirstOrDefault(x => string.Equals(x.Name, applicationName));

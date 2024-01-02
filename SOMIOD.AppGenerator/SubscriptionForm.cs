@@ -42,8 +42,12 @@ namespace SOMIOD.AppGenerator
         //Delete Subscription
         private void button4_Click(object sender, EventArgs e)
         {
-            //show confirmation window
-            DeleteSubscription();
+            var response = MessageBox.Show("Are you sure you want to delete this subscription?", "Delete Subscription", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+            if(response == DialogResult.Yes)
+            {
+                DeleteSubscription();
+                MessageBox.Show("Subscription deleted successfully", "Delete Subscription", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         //Back button
@@ -98,11 +102,8 @@ namespace SOMIOD.AppGenerator
             string containerName = containers.SelectedItem.ToString();
             string subscriptionName = subscriptions.SelectedItem.ToString();
 
-            var response = httpClient.DeleteAsync(httpClient.BaseAddress + applicationName + "/" + containerName + "/sub/" + subscriptionName);
-            if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
-            {
-                //show error message
-            }
+            Shared.DeleteSubscription(httpClient, applicationName, containerName, subscriptionName);
+            subscriptions.DataSource = ((List<string>)subscriptions.DataSource).FindAll(x => !String.Equals(x, subscriptionName));
         }
     }
 }

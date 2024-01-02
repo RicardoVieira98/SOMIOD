@@ -33,7 +33,7 @@ namespace SOMIOD.AppGenerator
 
             Library.Models.Application application = new Library.Models.Application()
             {
-                Id = Int32.Parse(textBox2.Text),
+                Id = create ? 0 : Int32.Parse(textBox2.Text),
                 Name = textBox1.Text,
                 CreatedDate = dateTimePicker1.Value
             };

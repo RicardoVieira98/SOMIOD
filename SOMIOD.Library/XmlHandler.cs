@@ -54,6 +54,29 @@ namespace SOMIOD.Library
             return doc.OuterXml;
         }
 
+        public static string FullContainerXml(Container container, List<Subscription> subscriptions, List<Data> datas)
+        {
+            XmlDocument doc = new XmlDocument();
+
+            XmlElement containerElement = SetContainerXmlSection(container, doc);
+
+            foreach (var data in datas)
+            {
+                XmlElement dataElement = SetDataXmlSection(data, doc);
+                containerElement.AppendChild(dataElement);
+            }
+
+            foreach (var subscription in subscriptions)
+            {
+                XmlElement subscriptionElement = SetSubscriptionXmlSection(subscription, doc);
+
+                containerElement.AppendChild(subscriptionElement);
+            }
+
+            doc.AppendChild(containerElement);
+            return doc.OuterXml;
+        }
+
         public static string OnlyContainersXml(List<Container> containers)
         {
             XmlDocument doc = new XmlDocument();
@@ -62,29 +85,6 @@ namespace SOMIOD.Library
             {
                 SetContainerXmlSection(container, doc);   
             }
-            return doc.OuterXml;
-        }
-
-        public static string FullContainerXml(Container container, List<Subscription> subscriptions, List<Data> datas)
-        {
-            XmlDocument doc = new XmlDocument();
-
-            XmlElement containerElement = SetContainerXmlSection(container,doc);
-
-            foreach (var data in datas)
-            {
-                XmlElement dataElement = SetDataXmlSection(data,doc);
-                containerElement.AppendChild(dataElement);
-            }
-
-            foreach (var subscription in subscriptions)
-            {
-                XmlElement subscriptionElement = SetSubscriptionXmlSection(subscription,doc);
-
-                containerElement.AppendChild(subscriptionElement);
-            }
-
-            doc.AppendChild(containerElement);
             return doc.OuterXml;
         }
 

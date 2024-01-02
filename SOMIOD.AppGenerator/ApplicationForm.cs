@@ -1,22 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SOMIOD.AppGenerator
 {
     public partial class ApplicationForm : Form
     {
-        private HttpClient client = WebClient.CreateHttpClient();
+        private HttpClient client;
         public ApplicationForm()
         {
             InitializeComponent();
+            client = WebClient.CreateHttpClient();
         }
 
         //Get
@@ -43,26 +38,25 @@ namespace SOMIOD.AppGenerator
         //Delete
         private void button3_Click(object sender, EventArgs e)
         {
-            DeleteApplication();
+            var response = MessageBox.Show("Are you sure you want to delete this application?", "Delete Application", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+            if (response == DialogResult.Yes)
+            {
+                DeleteApplication();
+                MessageBox.Show("Application deleted successfully", "Delete Application", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        //Go Back
+        private void button5_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
 
         private void DeleteApplication()
         {
             string applicationName = applications.SelectedItem?.ToString();
-            var response = client.DeleteAsync(client.BaseAddress + applicationName);
-
-            if(response.Result.StatusCode != System.Net.HttpStatusCode.OK)
-            {
-                //show error message
-            }
-
+            Shared.DeleteApplication(client,applicationName);
             applications.DataSource = ((List<string>)applications.DataSource).FindAll(x => !String.Equals(x, applicationName));
-            //show success message
-        }
-
-        private void button5_Click(object sender, EventArgs e)
-        {
-            this.Close();
         }
     }
 }
