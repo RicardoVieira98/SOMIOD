@@ -80,7 +80,6 @@
             // 
             // subscriptions
             // 
-            this.subscriptions.Enabled = false;
             this.subscriptions.FormattingEnabled = true;
             this.subscriptions.ItemHeight = 16;
             this.subscriptions.Location = new System.Drawing.Point(359, 34);

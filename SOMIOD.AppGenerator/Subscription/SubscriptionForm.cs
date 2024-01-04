@@ -72,11 +72,9 @@ namespace SOMIOD.AppGenerator
 
         private bool DeleteSubscription()
         {
-            string applicationName = applications.SelectedItem.ToString();
-            string containerName = containers.SelectedItem.ToString();
             string subscriptionName = subscriptions.SelectedItem.ToString();
 
-            var res = Shared.DeleteSubscription(httpClient, applicationName, containerName, subscriptionName);
+            var res = Shared.DeleteSubscription(httpClient, ApplicationName, ContainerName, subscriptionName);
             if (res)
             {
                 subscriptions.DataSource = ((List<string>)subscriptions.DataSource).FindAll(x => !String.Equals(x, subscriptionName));
