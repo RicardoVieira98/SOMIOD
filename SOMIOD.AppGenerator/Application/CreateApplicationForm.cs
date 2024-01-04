@@ -44,19 +44,20 @@ namespace SOMIOD.AppGenerator
             var response = create ? client.PostAsync(client.BaseAddress, content) : client.PutAsync(client.BaseAddress, content);
             if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
             {
-                //show error
+                Shared.ShowError(response.Result);
+                return;
             }
 
-            //show success message
-
+            var message = create ? "created" : "updated";
+            Shared.ShowMessage("Application " + message + " successfully", "Application " + message, MessageBoxButtons.OK, MessageBoxIcon.Information);
             this.Close();
         }
 
         private void FillFormForEdition(Library.Models.Application application)
         {
-            textBox2.Text = application.Id.ToString();
-            textBox1.Text = application.Name;
-            dateTimePicker1.Value = application.CreatedDate;
+            textBox2.Text = application?.Id.ToString();
+            textBox1.Text = application?.Name;
+            dateTimePicker1.Value = (application?.CreatedDate).Value;
         }
     }
 }

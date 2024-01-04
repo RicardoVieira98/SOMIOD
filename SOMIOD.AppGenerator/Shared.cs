@@ -77,27 +77,27 @@ namespace SOMIOD.AppGenerator
         public static List<string> GetAllContainersNamesFromApplication(HttpClient client, string applicationName)
         {
             WebClient.AddOperationTypeHeader(client, Library.Headers.Container);
-            var response = client.GetAsync(client.BaseAddress + "/" + applicationName + "/con");
-            if (!(response.Result.StatusCode == System.Net.HttpStatusCode.OK))
+            var response = client.GetAsync(client.BaseAddress + applicationName + "/con");
+            if (!(response.Result.StatusCode == HttpStatusCode.OK))
             {
                 ShowError(response.Result);
                 return null;
             }
 
-            return SetObjectNamesList(response, "//applications");
+            return SetObjectNamesList(response, "//containers");
         }
 
         public static List<string> GetAllContainersNames(HttpClient client)
         {
             WebClient.AddOperationTypeHeader(client, Library.Headers.Container);
-            var response = client.GetAsync(client.BaseAddress + "/application");
-            if (!(response.Result.StatusCode == System.Net.HttpStatusCode.OK))
+            var response = client.GetAsync(client.BaseAddress + "application/container");
+            if (!(response.Result.StatusCode == HttpStatusCode.OK))
             {
                 ShowError(response.Result);
                 return null;
             }
 
-            return SetObjectNamesList(response, "//applications");
+            return SetObjectNamesList(response, "//containers");
         }
 
         public static bool DeleteContainer(HttpClient client, string applicationName, string containername)
@@ -116,7 +116,7 @@ namespace SOMIOD.AppGenerator
         public static List<string> GetAllSubscriptionNames(HttpClient client)
         {
             WebClient.AddOperationTypeHeader(client, Library.Headers.Subscription);
-            var response = client.GetAsync(client.BaseAddress + "application/container");
+            var response = client.GetAsync(client.BaseAddress + "application/container/sub");
             if (!(response.Result.StatusCode == HttpStatusCode.OK))
             {
                 ShowError(response.Result);
@@ -129,7 +129,7 @@ namespace SOMIOD.AppGenerator
         public static List<string> GetAllSubscriptionNamesFromContainer(HttpClient client, string applicationName, string containerName)
         {
             WebClient.AddOperationTypeHeader(client, Library.Headers.Subscription);
-            var response = client.GetAsync(client.BaseAddress + applicationName + "/" + containerName);
+            var response = client.GetAsync(client.BaseAddress + applicationName + "/" + containerName + "/sub");
             if (!(response.Result.StatusCode == HttpStatusCode.OK))
             {
                 ShowError(response.Result);
@@ -165,7 +165,7 @@ namespace SOMIOD.AppGenerator
             {
                 foreach (XmlNode grandChildNode in childNode.ChildNodes)
                 {
-                    objectNames.Add(grandChildNode.Attributes["name"].Value);
+                    objectNames.Add(grandChildNode.Attributes["name"]?.Value);
                 }
             }
 
@@ -189,9 +189,9 @@ namespace SOMIOD.AppGenerator
                 {
                     foreach (XmlNode grandChildNode in childNode.ChildNodes)
                     {
-                        app.Id = Int32.Parse(grandChildNode.Attributes[0].Value);
-                        app.Name = grandChildNode.Attributes[1].Value;
-                        app.CreatedDate = DateTime.Parse(grandChildNode.Attributes[2].Value);
+                        app.Id = Int32.Parse(grandChildNode.Attributes["id"]?.Value);
+                        app.Name = grandChildNode.Attributes["name"]?.Value;
+                        app.CreatedDate = DateTime.Parse(grandChildNode.Attributes["createddate"]?.Value);
                     }
                 }
                 obj = app;
@@ -206,9 +206,10 @@ namespace SOMIOD.AppGenerator
                 {
                     foreach (XmlNode grandChildNode in childNode.ChildNodes)
                     {
-                        con.Name = grandChildNode.Attributes[0].Value;
-                        con.CreatedDate = DateTime.Parse(grandChildNode.Attributes[1].Value);
-                        con.Parent = Int32.Parse(grandChildNode.Attributes[2].Value);
+                        con.Id = Int32.Parse(grandChildNode.Attributes["id"]?.Value);
+                        con.Name = grandChildNode.Attributes["name"]?.Value;
+                        con.CreatedDate = DateTime.Parse(grandChildNode.Attributes["createddate"]?.Value);
+                        con.Parent = Int32.Parse(grandChildNode.Attributes["parent"]?.Value);
                     }
                 }
                 obj = con;
@@ -223,11 +224,12 @@ namespace SOMIOD.AppGenerator
                 {
                     foreach (XmlNode grandChildNode in childNode.ChildNodes)
                     {
-                        sub.Name = grandChildNode.Attributes[0].Value;
-                        sub.CreatedDate = DateTime.Parse(grandChildNode.Attributes[1].Value);
-                        sub.Parent = Int32.Parse(grandChildNode.Attributes[2].Value);
-                        sub.Event = grandChildNode.Attributes[3].Value;
-                        sub.Endpoint = grandChildNode.Attributes[4].Value;
+                        sub.Id = Int32.Parse(grandChildNode.Attributes["id"]?.Value);
+                        sub.Name = grandChildNode.Attributes["name"]?.Value;
+                        sub.CreatedDate = DateTime.Parse(grandChildNode.Attributes["createddate"]?.Value);
+                        sub.Parent = Int32.Parse(grandChildNode.Attributes["parent"]?.Value);
+                        sub.Event = grandChildNode.Attributes["event"]?.Value;
+                        sub.Endpoint = grandChildNode.Attributes["endpoint"]?.Value;
                     }
                 }
                 obj = sub;
@@ -240,24 +242,29 @@ namespace SOMIOD.AppGenerator
             return obj;
         }
 
-        private static void ShowError(HttpResponseMessage response)
+        public static void ShowError(HttpResponseMessage response)
         {
             switch(response.StatusCode)
             {
                 case HttpStatusCode.BadRequest:
-                    MessageBox.Show(response.Content.ReadAsStringAsync().Result, "Bad Request", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ShowMessage(response.Content.ReadAsStringAsync().Result, "Bad Request", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     break;
                 case HttpStatusCode.NotFound:
-                    MessageBox.Show("Resource you requested was not found in our database", "Not Found", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ShowMessage("Resource you requested was not found in our database", "Not Found", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     break;
                 case HttpStatusCode.Conflict:
-                    MessageBox.Show(response.Content.ReadAsStringAsync().Result, "Conflit", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ShowMessage(response.Content.ReadAsStringAsync().Result, "Conflict", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     break;
                 case HttpStatusCode.InternalServerError:
-                    MessageBox.Show(response.Content.ReadAsStringAsync().Result, "Server Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    ShowMessage(response.Content.ReadAsStringAsync().Result, "Server Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     break;
                 default: break;
             }
+        }
+
+        public static void ShowMessage(string message, string title, MessageBoxButtons buttons, MessageBoxIcon icon)
+        {
+            MessageBox.Show(message, title, buttons, icon);
         }
     }
 }

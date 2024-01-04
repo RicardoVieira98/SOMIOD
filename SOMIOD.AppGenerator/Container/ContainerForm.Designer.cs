@@ -56,6 +56,7 @@
             this.containers.Name = "containers";
             this.containers.Size = new System.Drawing.Size(197, 308);
             this.containers.TabIndex = 4;
+            this.containers.SelectedIndexChanged += new System.EventHandler(this.containers_SelectedIndexChanged);
             // 
             // button1
             // 

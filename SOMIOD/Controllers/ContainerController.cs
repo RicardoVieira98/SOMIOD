@@ -12,6 +12,7 @@ using Container = SOMIOD.Library.Models.Container;
 
 namespace SOMIOD.Controllers
 {
+    [RoutePrefix("api/somiod")]
     public class ContainerController : ApiController
     {
         private readonly SomiodDBContext _context;
@@ -22,7 +23,7 @@ namespace SOMIOD.Controllers
         }
 
         [HttpGet]
-        [Route("somiod/{applicationName}/{containerName}")]
+        [Route("{applicationName}/{containerName}")]
         public IHttpActionResult GetContainer(string applicationName, string containerName)
         {
             try
@@ -58,7 +59,7 @@ namespace SOMIOD.Controllers
         }
 
         [HttpGet]
-        [Route("somiod/application")]
+        [Route("application/container")]
         public IHttpActionResult GetContainers()
         {
             try
@@ -90,7 +91,7 @@ namespace SOMIOD.Controllers
         }
 
         [HttpGet]
-        [Route("somiod/{applicationName}/con")]
+        [Route("{applicationName}/con")]
         public IHttpActionResult GetContainersByApplication(string applicationName)
         {
             try
@@ -106,8 +107,8 @@ namespace SOMIOD.Controllers
                 }
 
                 if (Request.Headers.Count() < 1 ||
-                    Request.Headers.Any(x => x.Key == "somiod-discover") ||
-                    !string.Equals(Request.Headers.First(x => x.Key == "somiod-discover").Value.FirstOrDefault(), Headers.Container.ToString().ToLower()))
+                    !Request.Headers.Any(x => x.Key == "somiod-discover") ||
+                    !string.Equals(Request.Headers.First(x => x.Key == "somiod-discover").Value.FirstOrDefault(), Headers.Container.ToString()))
                 {
                     return BadRequest("Header was not found or incorrect, please make sure you are sending a correct header with the operation-type necessary");
                 }
@@ -136,8 +137,8 @@ namespace SOMIOD.Controllers
         }
 
         [HttpPost]
-        [Route("somiod/{applicationName}")]
-        public IHttpActionResult PostContainer(string applicationName, [FromBody] XmlElement container)
+        [Route("{applicationParentName}/insert")]
+        public IHttpActionResult PostContainer(string applicationParentName, [FromBody] XmlElement container)
         {
             try
             {
@@ -146,29 +147,27 @@ namespace SOMIOD.Controllers
                     return BadRequest("Form sent is empty");
                 }
 
-                if (string.IsNullOrEmpty(container.Attributes[1].Value) ||
-                    !Shared.IsDateCreatedCorrect(DateTime.Parse(container.Attributes[2].Value)) ||
-                    Int32.Parse(container.Attributes[3].Value) != 0)
+                if (!Shared.DoesApplicationExist(_context, applicationParentName))
+                {
+                    return BadRequest("Application parent does not exist");
+                }
+
+                if (string.IsNullOrEmpty(container.Attributes["name"]?.Value) ||
+                    !Shared.IsDateCreatedCorrect(DateTime.Parse(container.Attributes["createddate"]?.Value)))
                 {
                     return BadRequest("Input form is not correct, please make sure all fields are filled correctly before inserting a container");
                 }
 
                 var newCon = new Container()
                 {
-                    Name = container.Attributes[1]?.Value,
-                    CreatedDate = DateTime.Parse(container.Attributes[2]?.Value),
-                    Parent = Int32.Parse(container.Attributes[3].Value)
+                    Name = container.Attributes["name"]?.Value,
+                    CreatedDate = DateTime.Parse(container.Attributes["createddate"]?.Value),
+                    Parent = _context.Applications.FirstOrDefault(x => x.Name == applicationParentName).Id,
                 };
 
                 if (Shared.DoesContainerExist(_context, newCon.Name))
                 {
                     return Content(HttpStatusCode.Conflict, "Container already exists");
-                }
-
-                if(!IsContainerConnected(applicationName, newCon))
-                {
-                    return Content(HttpStatusCode.Conflict, "Container parent you are trying to insert does not exist, please insert a container with an existing parent associated");
-
                 }
 
                 var entity = _context.Containers.Add(newCon);
@@ -187,8 +186,8 @@ namespace SOMIOD.Controllers
         }
 
         [HttpPut]
-        [Route("somiod/{applicationName}")]
-        public IHttpActionResult PutContainer(string applicationName, [FromBody] XmlElement container)
+        [Route("{applicationParentName}/update")]
+        public IHttpActionResult PutContainer(string applicationParentName, [FromBody] XmlElement container)
         {
             try
             {
@@ -197,38 +196,45 @@ namespace SOMIOD.Controllers
                     return BadRequest("Form sent is empty");
                 }
 
-                if (Int32.Parse(container.Attributes[0].Value) != 0 ||
-                    string.IsNullOrEmpty(container.Attributes[1].Value) ||
-                    !Shared.IsDateCreatedCorrect(DateTime.Parse(container.Attributes[2].Value)) ||
-                    Int32.Parse(container.Attributes[3].Value) != 0)
+                if (!Shared.DoesApplicationExist(_context, applicationParentName))
+                {
+                    return BadRequest("Application parent does not exist");
+                }
+
+                if (Int32.Parse(container.Attributes["id"]?.Value) == 0 ||
+                    string.IsNullOrEmpty(container.Attributes["name"]?.Value) ||
+                    !Shared.IsDateCreatedCorrect(DateTime.Parse(container.Attributes["createddate"]?.Value)))
                 {
                     return BadRequest("Input form is not correct, please make sure all fields are filled correctly before updating a container");
                 }
 
                 var newCon = new Container()
                 {
-                    Id = Int32.Parse(container.Attributes[0].Value),
-                    Name = container.Attributes[1]?.Value,
-                    CreatedDate = DateTime.Parse(container.Attributes[2]?.Value),
-                    Parent = Int32.Parse(container.Attributes[3].Value)
+                    Id = Int32.Parse(container.Attributes["id"]?.Value),
+                    Name = container.Attributes["name"]?.Value,
+                    CreatedDate = DateTime.Parse(container.Attributes["createddate"]?.Value),
+                    Parent = _context.Applications.FirstOrDefault(x => string.Equals(x.Name, applicationParentName)).Id
                 };
 
-                if (!Shared.DoesContainerExist(_context, newCon.Name))
+                if (!Shared.DoesContainerExist(_context, newCon.Id))
                 {
                     return Content(HttpStatusCode.Conflict, "Container does not exist");
                 }
 
-                if (!IsContainerConnected(applicationName, newCon))
+                if (!Shared.IsContainerConnected(_context,applicationParentName, newCon))
                 {
                     return Content(HttpStatusCode.Conflict, "Container parent you are trying to update does not exist, please update a container with an existing parent associated");
-
                 }
 
-                var entity = _context.Containers.Add(newCon);
-                if (entity is null)
+                var dbCon = _context.Containers.FirstOrDefault(x => x.Id == newCon.Id);
+                if (dbCon is null)
                 {
-                    return Content(HttpStatusCode.InternalServerError, "Error updating new container in our database");
+                    return Content(HttpStatusCode.InternalServerError, "Error retrieving container in our database");
                 }
+
+                dbCon.Name = newCon.Name;
+                dbCon.CreatedDate = newCon.CreatedDate;
+                dbCon.Parent = newCon.Parent;
 
                 _context.SaveChanges();
                 return Ok();
@@ -240,7 +246,7 @@ namespace SOMIOD.Controllers
         }
 
         [HttpDelete]
-        [Route("somiod/{applicationName}/{containerName}")]
+        [Route("{applicationName}/{containerName}")]
         public IHttpActionResult DeleteContainer(string applicationName, string containerName)
         {
             try
@@ -277,13 +283,6 @@ namespace SOMIOD.Controllers
             }
         }
 
-        private bool IsContainerConnected(string applicationName, Container container)
-        {
-            if (!Shared.DoesApplicationExist(_context, applicationName)) return false;
 
-            int? appId = _context.Applications.FirstOrDefault(x => string.Equals(x.Name, applicationName))?.Id;
-            return _context.Containers.Any(x => string.Equals(x.Name, container.Name) && x.Parent == appId);
-
-        }
     }
 }

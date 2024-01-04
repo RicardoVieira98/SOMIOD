@@ -10,6 +10,7 @@ using Application = SOMIOD.Library.Models.Application;
 
 namespace SOMIOD.Controllers
 {
+    [RoutePrefix("api/somiod")]
     public class ApplicationController : ApiController
     {
         private readonly SomiodDBContext _context;
@@ -20,7 +21,7 @@ namespace SOMIOD.Controllers
         }
 
         [HttpGet]   
-        [Route("somiod/{applicationName}")]
+        [Route("{applicationName}")]
         public IHttpActionResult GetApplication(string applicationName)
         {
             try
@@ -51,7 +52,7 @@ namespace SOMIOD.Controllers
         }
         
         [HttpGet]
-        [Route("somiod")]
+        [Route("")]
         public IHttpActionResult GetApplications()
         {
             try
@@ -83,7 +84,7 @@ namespace SOMIOD.Controllers
         }
 
         [HttpPost]
-        [Route("somiod")]
+        [Route("")]
         public IHttpActionResult PostApplication([FromBody] XmlElement application)
         {
             try
@@ -93,16 +94,16 @@ namespace SOMIOD.Controllers
                     return BadRequest("Form sent is empty");
                 }
 
-                if (string.IsNullOrEmpty(application.Attributes[1].Value) ||
-                    !Shared.IsDateCreatedCorrect(DateTime.Parse(application.Attributes[2].Value)))
+                if (string.IsNullOrEmpty(application.Attributes["name"]?.Value) ||
+                    !Shared.IsDateCreatedCorrect(DateTime.Parse(application.Attributes["createddate"]?.Value)))
                 {
                     return BadRequest("Input form is not correct, please make sure all fields are filled correctly before updating a application");
                 }
 
                 var newApp = new Application()
                 {
-                    Name = application.Attributes[1]?.Value,
-                    CreatedDate = DateTime.Parse(application.Attributes[2]?.Value)
+                    Name = application.Attributes["name"]?.Value,
+                    CreatedDate = DateTime.Parse(application.Attributes["createddate"]?.Value)
                 };
 
                 if(Shared.DoesApplicationExist(_context, newApp.Name))
@@ -125,7 +126,7 @@ namespace SOMIOD.Controllers
         }
 
         [HttpPut]
-        [Route("somiod")]
+        [Route("")]
         public IHttpActionResult PutApplication([FromBody] XmlElement application)
         {
             try
@@ -135,20 +136,21 @@ namespace SOMIOD.Controllers
                     return BadRequest("Form sent is empty");
                 }
 
-                if (string.IsNullOrEmpty(application.Attributes[1].Value) ||
-                    !Shared.IsDateCreatedCorrect(DateTime.Parse(application.Attributes[2].Value)))
+                if (Int32.Parse(application.Attributes["id"]?.Value) == 0 ||
+                    string.IsNullOrEmpty(application.Attributes["name"]?.Value) ||
+                    !Shared.IsDateCreatedCorrect(DateTime.Parse(application.Attributes["createddate"]?.Value)))
                 {
                     return BadRequest("Input form is not correct, please make sure all fields are filled correctly before updating a application");
                 }
 
                 var app = new Application()
                 {
-                    Id = Int32.Parse(application.Attributes[0]?.Value),
-                    Name = application.Attributes[1]?.Value,
-                    CreatedDate = DateTime.Parse(application.Attributes[2]?.Value)
+                    Id = Int32.Parse(application.Attributes["id"]?.Value),
+                    Name = application.Attributes["name"]?.Value,
+                    CreatedDate = DateTime.Parse(application.Attributes["createddate"]?.Value)
                 };
 
-                if (!Shared.DoesApplicationExist(_context, app.Name))
+                if (!Shared.DoesApplicationExist(_context, app.Id))
                 {
                     return NotFound();
                 }
@@ -156,7 +158,7 @@ namespace SOMIOD.Controllers
                 var dbApp = _context.Applications.SingleOrDefault(x => x.Id == app.Id);
                 if (dbApp is null)
                 {
-                    return Content(HttpStatusCode.InternalServerError, "Error updating application in our database");
+                    return Content(HttpStatusCode.InternalServerError, "Error retrieveing application in our database");
                 }
 
                 dbApp.Name = app.Name;
@@ -172,7 +174,7 @@ namespace SOMIOD.Controllers
         }
 
         [HttpDelete]
-        [Route("somiod/{applicationName}")]
+        [Route("{applicationName}")]
         public IHttpActionResult DeleteApplication(string applicationName)
         {
             try

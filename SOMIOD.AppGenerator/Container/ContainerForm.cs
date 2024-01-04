@@ -14,6 +14,8 @@ namespace SOMIOD.AppGenerator.Container
     public partial class ContainerForm : Form
     {
         private HttpClient client;
+        private string ApplicationSelected;
+        private string ContainerSelected;
         public ContainerForm()
         {
             InitializeComponent();
@@ -36,23 +38,26 @@ namespace SOMIOD.AppGenerator.Container
         //Fill Containers by Application
         private void applications_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string applicationName = applications.SelectedItem as string;
-            containers.DataSource = Shared.GetAllContainersNamesFromApplication(client, applicationName);
+            ApplicationSelected = applications.SelectedItem as string;
+            containers.DataSource = Shared.GetAllContainersNamesFromApplication(client, ApplicationSelected);
+        }
+
+        private void containers_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ContainerSelected = containers.SelectedItem?.ToString();
         }
 
         //Create
         private void button2_Click(object sender, EventArgs e)
         {
-            CreateContainerForm createContainerForm = new CreateContainerForm(true,null);
+            CreateContainerForm createContainerForm = new CreateContainerForm(true, ApplicationSelected, null);
             createContainerForm.ShowDialog();
         }
 
         //Update
         private void button3_Click(object sender, EventArgs e)
         {
-            string applicationName = applications.SelectedItem.ToString();
-            string containerName = containers.SelectedItem.ToString();
-            CreateContainerForm createContainerForm = new CreateContainerForm(false,Shared.GetContainer(client,applicationName,containerName));
+            CreateContainerForm createContainerForm = new CreateContainerForm(false, ApplicationSelected, Shared.GetContainer(client, ApplicationSelected, ContainerSelected));
             createContainerForm.ShowDialog();
         }
 
@@ -75,12 +80,10 @@ namespace SOMIOD.AppGenerator.Container
 
         private bool DeleteContainer()
         {
-            string containerName = containers.SelectedItem?.ToString();
-            string applicationName = applications.SelectedItem?.ToString();
-            var res = Shared.DeleteContainer(client, applicationName, containerName);
+            var res = Shared.DeleteContainer(client, ApplicationSelected, ContainerSelected);
             if (res)
             {
-                containers.DataSource = ((List<string>)containers.DataSource).FindAll(x => !String.Equals(x, containerName));
+                containers.DataSource = ((List<string>)containers.DataSource).FindAll(x => !String.Equals(x, ContainerSelected));
             }
             return res;
         }

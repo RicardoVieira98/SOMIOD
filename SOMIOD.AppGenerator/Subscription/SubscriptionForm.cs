@@ -11,19 +11,33 @@ namespace SOMIOD.AppGenerator
     public partial class SubscriptionForm : Form
     {
         private HttpClient httpClient;
+        private string ApplicationName;
+        private string ContainerName;
         public SubscriptionForm()
         {
             InitializeComponent();
-
             httpClient = WebClient.CreateHttpClient();
-
             applications.DataSource = Shared.GetAllApplicationNames(httpClient);
-            //containers.DataSource = Shared.GetAllContainersNames(httpClient);
         }
 
         private void label1_Click(object sender, EventArgs e)
         {
 
+        }
+
+        //Fill Containers with Application
+        private void applications_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ApplicationName = applications.SelectedItem as string;
+
+            containers.DataSource = Shared.GetAllContainersNamesFromApplication(httpClient, ApplicationName);
+        }
+
+        //Fill Subscriptions with Container
+        private void containers_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ContainerName = containers.SelectedItem as string;
+            subscriptions.DataSource = Shared.GetAllSubscriptionNamesFromContainer(httpClient, ApplicationName, ContainerName);
         }
 
         //Get All Subscriptions
@@ -35,7 +49,7 @@ namespace SOMIOD.AppGenerator
         //Create Subscription
         private void button2_Click(object sender, EventArgs e)
         {
-            CreateSubscriptionForm form = new CreateSubscriptionForm();
+            CreateSubscriptionForm form = new CreateSubscriptionForm(ApplicationName,ContainerName);
             form.ShowDialog();
         }
 
@@ -54,20 +68,6 @@ namespace SOMIOD.AppGenerator
         private void button5_Click(object sender, EventArgs e)
         {
             this.Close();
-        }
-
-        private void applications_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            var selectedApplication = applications.SelectedItems[0].ToString();
-
-            containers.DataSource = Shared.GetAllContainersNamesFromApplication(httpClient, selectedApplication);
-        }
-
-        private void containers_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            var selectedApplication = applications.SelectedItems[0].ToString();
-            var selectedContainer = containers.SelectedItems[0].ToString();
-            containers.DataSource = Shared.GetAllSubscriptionNamesFromContainer(httpClient, selectedApplication, selectedContainer);
         }
 
         private bool DeleteSubscription()

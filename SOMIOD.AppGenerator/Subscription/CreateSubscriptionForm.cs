@@ -17,8 +17,10 @@ namespace SOMIOD.AppGenerator
     {
         public string ApplicationName { get; set; }
         public string ContainerName { get; set; }
-        public CreateSubscriptionForm()
+        public CreateSubscriptionForm(string applicationName, string containerName)
         {
+            ApplicationName = applicationName;
+            ContainerName = containerName;
             InitializeComponent();
         }
 
@@ -60,12 +62,14 @@ namespace SOMIOD.AppGenerator
 
             string request = XmlHandler.GetSubscriptionXml(subscription);
             HttpContent content = new StringContent(request, Encoding.UTF8, "application/xml");
-            var response = client.PostAsync(client.BaseAddress + "/" + ApplicationName + "/" + ContainerName + "/", content);
+            var response = client.PostAsync(client.BaseAddress + "/" + ApplicationName + "/" + ContainerName + "/sub", content);
             if(response.Result.StatusCode != System.Net.HttpStatusCode.OK)
             {
-                //show error
+                Shared.ShowError(response.Result);
+                return;
             }
 
+            Shared.ShowMessage("Subscription created successfully", "Subscription created", MessageBoxButtons.OK, MessageBoxIcon.Information);
             this.Close();
         }
     }

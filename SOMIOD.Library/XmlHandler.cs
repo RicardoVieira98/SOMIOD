@@ -20,16 +20,16 @@ namespace SOMIOD.Library
 
             foreach (var container in containers)
             {
-                XmlElement containerElement = SetContainerXmlSection(container,doc);
+                XmlElement containerElement = SetContainerXmlSection(container, doc);
                 foreach (var data in datas)
                 {
-                    XmlElement dataElement = SetDataXmlSection(data,doc);
+                    XmlElement dataElement = SetDataXmlSection(data, doc);
                     containerElement.AppendChild(dataElement);
                 }
 
                 foreach (var subscription in subscriptions)
                 {
-                    XmlElement subscriptionElement = SetSubscriptionXmlSection(subscription,doc);
+                    XmlElement subscriptionElement = SetSubscriptionXmlSection(subscription, doc);
                     containerElement.AppendChild(subscriptionElement);
                 }
                 applicationElement.AppendChild(containerElement);
@@ -91,12 +91,13 @@ namespace SOMIOD.Library
         {
             XmlDocument doc = new XmlDocument();
 
-            XmlElement containerElements = doc.CreateElement("containers");
+            XmlElement containerRoot = doc.CreateElement("containers");
             foreach (var container in containers)
             {
-                SetContainerXmlSection(container, doc);   
+                var element = SetContainerXmlSection(container, doc);
+                containerRoot.AppendChild(element);
             }
-            doc.AppendChild(containerElements);
+            doc.AppendChild(containerRoot);
             return doc.OuterXml;
         }
 
@@ -146,6 +147,7 @@ namespace SOMIOD.Library
             doc.AppendChild(dataElements);
             return doc.OuterXml;
         }
+
         public static string GetDataXml(Data data)
         {
             XmlDocument doc = new XmlDocument();
@@ -156,11 +158,10 @@ namespace SOMIOD.Library
         }
 
 
-
         private static XmlElement SetApplicationXmlSection(Application app, XmlDocument doc)
         {
             XmlElement applicationElement = doc.CreateElement("application");
-            applicationElement.SetAttribute("id",app?.Id.ToString());
+            applicationElement.SetAttribute("id", app?.Id.ToString());
             applicationElement.SetAttribute("name", app?.Name);
             applicationElement.SetAttribute("createddate", FormatDate(app?.CreatedDate));
             return applicationElement;
@@ -168,19 +169,20 @@ namespace SOMIOD.Library
 
         private static XmlElement SetContainerXmlSection(Container container, XmlDocument doc)
         {
-            XmlElement containerElement = doc.CreateElement("Container");
-            containerElement.SetAttribute("Name", container?.Name);
-            containerElement.SetAttribute("CreatedDate", container?.CreatedDate.ToString());
-            containerElement.SetAttribute("Parent", container?.Parent.ToString());
-            doc.AppendChild(containerElement);
+            XmlElement containerElement = doc.CreateElement("container");
+            containerElement.SetAttribute("id", container?.Id.ToString());
+            containerElement.SetAttribute("name", container?.Name);
+            containerElement.SetAttribute("createddate", container?.CreatedDate.ToString());
+            containerElement.SetAttribute("parent", container?.Parent.ToString());
             return containerElement;
         }
 
         private static XmlElement SetSubscriptionXmlSection(Subscription subscription, XmlDocument doc)
         {
             XmlElement subscriptionElement = doc.CreateElement("subscription");
+            subscriptionElement.SetAttribute("id", subscription?.Id.ToString());
             subscriptionElement.SetAttribute("name", subscription?.Name);
-            subscriptionElement.SetAttribute("createdDate", subscription?.CreatedDate.ToString());
+            subscriptionElement.SetAttribute("createddate", subscription?.CreatedDate.ToString());
             subscriptionElement.SetAttribute("parent", subscription?.Parent.ToString());
             subscriptionElement.SetAttribute("event", subscription?.Event);
             subscriptionElement.SetAttribute("endpoint", subscription.Endpoint);
@@ -190,11 +192,12 @@ namespace SOMIOD.Library
 
         private static XmlElement SetDataXmlSection(Data data, XmlDocument doc)
         {
-            XmlElement dataElement = doc.CreateElement("Data");
-            dataElement.SetAttribute("Name", data?.Name);
-            dataElement.SetAttribute("CreatedDate", data?.CreatedDate.ToString());
-            dataElement.SetAttribute("Parent", data?.Parent.ToString());
-            dataElement.SetAttribute("Content", data?.Content);
+            XmlElement dataElement = doc.CreateElement("data");
+            dataElement.SetAttribute("id", data?.Id.ToString());
+            dataElement.SetAttribute("name", data?.Name);
+            dataElement.SetAttribute("createdDate", data?.CreatedDate.ToString());
+            dataElement.SetAttribute("parent", data?.Parent.ToString());
+            dataElement.SetAttribute("content", data?.Content);
             doc.AppendChild(dataElement);
             return dataElement;
         }

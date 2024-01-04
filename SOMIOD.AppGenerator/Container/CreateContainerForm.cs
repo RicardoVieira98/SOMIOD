@@ -15,11 +15,13 @@ namespace SOMIOD.AppGenerator.Container
     public partial class CreateContainerForm : Form
     {
         private bool create;
-        public CreateContainerForm(bool create, Library.Models.Container container)
+        private string ApplicationParent;
+        public CreateContainerForm(bool create,string applicationName, Library.Models.Container container)
         {
             this.create = create;
             InitializeComponent();
             button1.Text = create ? "Create" : "Edit";
+            ApplicationParent = applicationName;
             if (!create)
             {
                 FillFormForEdition(container);
@@ -41,13 +43,15 @@ namespace SOMIOD.AppGenerator.Container
 
             HttpContent content = new StringContent(request, Encoding.UTF8, "application/xml");
             
-            var response = create ? client.PostAsync(client.BaseAddress, content) : client.PutAsync(client.BaseAddress, content);
+            var response = create ? client.PostAsync(client.BaseAddress + "/" + ApplicationParent + "/insert", content) : client.PutAsync(client.BaseAddress + "/" + ApplicationParent + "/update", content);
             if (response.Result.StatusCode != System.Net.HttpStatusCode.OK)
             {
-                //show error message
+                Shared.ShowError(response.Result);
+                return;
             }
 
-            //show success message
+            var message = create ? "created" : "edited";
+            Shared.ShowMessage("Container successfully " + message, "Container " + message, MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             this.Close();
         }

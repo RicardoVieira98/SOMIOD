@@ -43,15 +43,15 @@
             // 
             this.applications.FormattingEnabled = true;
             this.applications.ItemHeight = 16;
-            this.applications.Location = new System.Drawing.Point(47, 60);
+            this.applications.Location = new System.Drawing.Point(31, 34);
             this.applications.Name = "applications";
-            this.applications.Size = new System.Drawing.Size(120, 84);
+            this.applications.Size = new System.Drawing.Size(161, 148);
             this.applications.TabIndex = 1;
             this.applications.SelectedIndexChanged += new System.EventHandler(this.applications_SelectedIndexChanged);
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(47, 205);
+            this.button1.Location = new System.Drawing.Point(31, 205);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(120, 32);
             this.button1.TabIndex = 2;
@@ -72,9 +72,9 @@
             // 
             this.containers.FormattingEnabled = true;
             this.containers.ItemHeight = 16;
-            this.containers.Location = new System.Drawing.Point(198, 60);
+            this.containers.Location = new System.Drawing.Point(198, 34);
             this.containers.Name = "containers";
-            this.containers.Size = new System.Drawing.Size(120, 84);
+            this.containers.Size = new System.Drawing.Size(155, 148);
             this.containers.TabIndex = 4;
             this.containers.SelectedIndexChanged += new System.EventHandler(this.containers_SelectedIndexChanged);
             // 
@@ -83,25 +83,25 @@
             this.subscriptions.Enabled = false;
             this.subscriptions.FormattingEnabled = true;
             this.subscriptions.ItemHeight = 16;
-            this.subscriptions.Location = new System.Drawing.Point(345, 60);
+            this.subscriptions.Location = new System.Drawing.Point(359, 34);
             this.subscriptions.Name = "subscriptions";
-            this.subscriptions.Size = new System.Drawing.Size(120, 84);
+            this.subscriptions.Size = new System.Drawing.Size(152, 148);
             this.subscriptions.TabIndex = 5;
             // 
             // allSubs
             // 
             this.allSubs.FormattingEnabled = true;
             this.allSubs.ItemHeight = 16;
-            this.allSubs.Location = new System.Drawing.Point(47, 243);
+            this.allSubs.Location = new System.Drawing.Point(31, 243);
             this.allSubs.Name = "allSubs";
             this.allSubs.Size = new System.Drawing.Size(171, 196);
             this.allSubs.TabIndex = 6;
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(286, 267);
+            this.button2.Location = new System.Drawing.Point(324, 243);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(179, 55);
+            this.button2.Size = new System.Drawing.Size(187, 69);
             this.button2.TabIndex = 7;
             this.button2.Text = "Create Subscription";
             this.button2.UseVisualStyleBackColor = true;
@@ -109,9 +109,9 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(286, 357);
+            this.button4.Location = new System.Drawing.Point(324, 374);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(179, 56);
+            this.button4.Size = new System.Drawing.Size(187, 65);
             this.button4.TabIndex = 9;
             this.button4.Text = "Delete Subscription";
             this.button4.UseVisualStyleBackColor = true;
@@ -131,7 +131,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(491, 512);
+            this.ClientSize = new System.Drawing.Size(536, 502);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button2);

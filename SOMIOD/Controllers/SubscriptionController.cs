@@ -12,6 +12,7 @@ using uPLibrary.Networking.M2Mqtt;
 
 namespace SOMIOD.Controllers
 {
+    [RoutePrefix("api/somiod")]
     public class SubscriptionController : ApiController
     {
         private readonly SomiodDBContext _context;
@@ -22,7 +23,7 @@ namespace SOMIOD.Controllers
         }
 
         [HttpGet]
-        [Route("somiod/{applicationName}/{containerName}/sub/{subscriptionName}")]
+        [Route("{applicationName}/{containerName}/sub/{subscriptionName}")]
         public IHttpActionResult GetSubscription(string applicationName, string containerName, string subscriptionName)
         {
             try
@@ -59,7 +60,7 @@ namespace SOMIOD.Controllers
         }
 
         [HttpGet]
-        [Route("somiod/{applicationName}/{containerName}/sub")]
+        [Route("{applicationName}/{containerName}/sub")]
         public IHttpActionResult GetSubscriptionsByContainer(string applicationName,string containerName)
         {
             try
@@ -76,8 +77,8 @@ namespace SOMIOD.Controllers
                 }
 
                 if (Request.Headers.Count() < 1 ||
-                    Request.Headers.Any(x => x.Key == "somiod-discover") ||
-                    !string.Equals(Request.Headers.First(x => x.Key == "somiod-discover").Value.FirstOrDefault(), Headers.Subscription.ToString().ToLower()))
+                    !Request.Headers.Any(x => x.Key == "somiod-discover") ||
+                    !string.Equals(Request.Headers.First(x => x.Key == "somiod-discover").Value.FirstOrDefault(), Headers.Subscription.ToString()))
                 {
                     return BadRequest("Header was not found or incorrect, please make sure you are sending a correct header with the operation-type necessary");
                 }
@@ -106,7 +107,7 @@ namespace SOMIOD.Controllers
         }
 
         [HttpGet]
-        [Route("somiod/application/container/sub")]
+        [Route("application/container/sub")]
         public IHttpActionResult GetSubscriptions()
         {
             try
@@ -140,7 +141,7 @@ namespace SOMIOD.Controllers
         }
 
         [HttpPost]
-        [Route("somiod/{applicationName}/{containerName}/sub")]
+        [Route("{applicationName}/{containerName}/sub")]
         public IHttpActionResult PostSubscription(string applicationName, string containerName, [FromBody]XmlElement subscription)  
         {
             try
@@ -155,30 +156,41 @@ namespace SOMIOD.Controllers
                     return BadRequest("Form sent is incomplete");
                 }
 
-                if (!Shared.IsDateCreatedCorrect(DateTime.Parse(subscription.Attributes[1].Value)) ||
-                    !Enum.IsDefined(typeof(Events), subscription.Attributes[2].Value) ||
-                    string.IsNullOrEmpty(subscription.Attributes[3].Value))
+                if (!Shared.DoesApplicationExist(_context, applicationName))
+                {
+                    return BadRequest("Application grand parent does not exist");
+                }
+
+                if (!Shared.DoesContainerExist(_context, containerName))
+                {
+                    return BadRequest("Container parent does not exist");
+                }
+
+                if(!Shared.IsContainerConnected(_context,applicationName,_context.Containers.FirstOrDefault(x => string.Equals(x.Name, containerName))))
+                {
+                    return Content(HttpStatusCode.Conflict, "Container parent does not exist or is not associated");
+                }
+
+                if (string.IsNullOrEmpty(subscription.Attributes["name"]?.Value) ||
+                    !Shared.IsDateCreatedCorrect(DateTime.Parse(subscription.Attributes["createddate"]?.Value)) ||
+                    !Enum.IsDefined(typeof(Events), subscription.Attributes["event"]?.Value) ||
+                    string.IsNullOrEmpty(subscription.Attributes["endpoint"]?.Value))
                 {
                     return BadRequest("Input form is not correct, please make sure all fields are correct before creating a new subscription");
                 }
 
                 var sub = new Subscription()
                 {
-                    Name = subscription.Attributes[0].Value,
-                    CreatedDate = DateTime.Parse(subscription.Attributes[1].Value),
-                    Event = subscription.Attributes[2].Value,
-                    Endpoint = subscription.Attributes[3].Value,
-                    Parent = Int32.Parse(subscription.Attributes[4].Value),
+                    Name = subscription.Attributes["name"]?.Value,
+                    CreatedDate = DateTime.Parse(subscription.Attributes["createddate"]?.Value),
+                    Event = subscription.Attributes["event"]?.Value,
+                    Endpoint = subscription.Attributes["endpoint"]?.Value,
+                    Parent = _context.Containers.FirstOrDefault(x => string.Equals(x.Name,containerName)).Id,
                 };
 
                 if (DoesSubscriptionExist(sub.Name))
                 {
                     return Content(HttpStatusCode.Conflict, "Subscription already exists");
-                }
-
-                if (!IsSubscriptionConnected(applicationName, containerName, sub))
-                {
-                    return Content(HttpStatusCode.Conflict,"Subscription parent you are trying to insert does not exists, or the containers parent's does not exist, please insert a subscription with an existing container associated and the container associated with an existing application");
                 }
 
                 var entity = _context.Subscriptions.Add(sub);
@@ -197,7 +209,7 @@ namespace SOMIOD.Controllers
         }
 
         [HttpDelete]
-        [Route("somiod/{applicationName}/{containerName}/sub/{subscriptionName}")]
+        [Route("{applicationName}/{containerName}/sub/{subscriptionName}")]
         public IHttpActionResult DeleteSubscription(string applicationName,string containerName, string subscriptionName)
         {
             try
@@ -238,16 +250,6 @@ namespace SOMIOD.Controllers
         private bool DoesSubscriptionExist(string subscriptionName)
         {
             return _context.Subscriptions.Any(x => String.Equals(x.Name, subscriptionName));
-        }
-
-        private bool IsSubscriptionConnected(string applicationName, string containerName, Subscription sub)
-        {
-
-            if (!Shared.DoesApplicationExist(_context, applicationName) || !Shared.DoesContainerExist(_context, containerName)) return false;
-
-            int? appId = _context.Applications.FirstOrDefault(x => string.Equals(x.Name,applicationName))?.Id;
-            int? conId = _context.Containers.FirstOrDefault(x => string.Equals(x.Name,containerName))?.Id;
-            return _context.Subscriptions.Any(x => string.Equals(x.Name,sub.Name) && x.Parent == conId) && _context.Containers.Any(x => x.Id == sub.Parent && x.Parent == appId); 
         }
 
         [Obsolete]
