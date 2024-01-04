@@ -1,18 +1,12 @@
 ﻿using SOMIOD.Data;
-using SOMIOD.Models;
+using SOMIOD.Library;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Web;
-using System.Web.Configuration;
 using System.Web.Http;
 using System.Xml;
-using System.Xml.Linq;
-using WebGrease.Css.Extensions;
+using Application = SOMIOD.Library.Models.Application;
 
 namespace SOMIOD.Controllers
 {
@@ -20,90 +14,199 @@ namespace SOMIOD.Controllers
     {
         private readonly SomiodDBContext _context;
 
-        public ApplicationController(SomiodDBContext context)
+        public ApplicationController()
         {
-            _context = context;
+            _context = new SomiodDBContext();
         }
 
         [HttpGet]   
         [Route("somiod/{applicationName}")]
         public IHttpActionResult GetApplication(string applicationName)
         {
-            if (String.IsNullOrEmpty(applicationName))
+            try
             {
-                return BadRequest();
+                if (Shared.AreArgsEmpty(new List<string> { applicationName }))
+                {
+                    return BadRequest("Requested resource is empty, please request a resource");
+                }
+
+                if(!Shared.DoesApplicationExist(_context,applicationName))
+                {
+                    return NotFound();
+                }
+
+                var apps = _context.Applications.Where(x => string.Equals(x.Name,applicationName)).ToList();
+
+                if (apps is null)
+                {
+                    return Content(HttpStatusCode.InternalServerError, "Error getting application of database");
+                }
+
+                if (apps.Count is 0)
+                {
+                    return NotFound();
+                }
+
+                return Ok(XmlHandler.OnlyApplicationsXml(apps));
             }
-
-            Application dbApp = new Application();
-
-            var result = _context.Applications.FirstOrDefault(x => x.Name.ToLower() == applicationName.ToLower());
-            if (result is null)
+            catch(Exception ex)
             {
-                return NotFound();
+                return Content(HttpStatusCode.InternalServerError, ex.Message);
             }
-            dbApp = result;
-            _context.SaveChanges();
+        }
+        
+        [HttpGet]
+        [Route("somiod")]
+        public IHttpActionResult GetApplications()
+        {
+            try
+            {
+                if (Request.Headers.Count() < 1 ||
+                    Request.Headers.All(x => x.Key != "somiod-discover") ||
+                    !string.Equals(Request.Headers.First(x => x.Key == "somiod-discover").Value.FirstOrDefault(), Headers.Application.ToString()))
+                {
+                    return BadRequest("Header was not found or incorrect, please make sure you are sending a correct header with the operation-type necessary");
+                }
 
-            return Ok(dbApp);
+                var applications = _context.Applications.ToList();
+                if (applications is null)
+                {
+                    return Content(HttpStatusCode.InternalServerError, "Error getting applications of database");
+                }
+
+                if (applications.Count is 0)
+                {
+                    return NotFound();
+                }
+
+                return Ok(XmlHandler.OnlyApplicationsXml(applications));
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
         [HttpPost]
         [Route("somiod")]
-        public IHttpActionResult PostApplication([FromBody] XmlElement data)
+        public IHttpActionResult PostApplication([FromBody] XmlElement application)
         {
-            if (data == null) { return BadRequest(); }
-
-            var dbApp = new Application()
+            try
             {
-                Name = data.SelectSingleNode("/application/@NAME")?.InnerText,
-                CreatedDate = DateTime.Parse(data.SelectSingleNode("/application/@CREATEDDATE")?.InnerText)
-            };
+                if (application is null || application.Attributes?.Count < 1)
+                {
+                    return BadRequest("Form sent is empty");
+                }
 
-            var entity = _context.Applications.Add(dbApp);
-            if(entity is null) return Content(HttpStatusCode.InternalServerError, "Error Inserting new Application");
-            _context.SaveChanges();
+                if (string.IsNullOrEmpty(application.Attributes[1].Value) ||
+                    !Shared.IsDateCreatedCorrect(DateTime.Parse(application.Attributes[2].Value)))
+                {
+                    return BadRequest("Input form is not correct, please make sure all fields are filled correctly before updating a application");
+                }
 
-            return Ok();
+                var newApp = new Application()
+                {
+                    Name = application.Attributes[1]?.Value,
+                    CreatedDate = DateTime.Parse(application.Attributes[2]?.Value)
+                };
+
+                if(Shared.DoesApplicationExist(_context, newApp.Name))
+                {
+                    return Content(HttpStatusCode.Conflict, "Application already exists");
+                }
+
+                var entity = _context.Applications.Add(newApp);
+                if (entity is null)
+                {
+                    return Content(HttpStatusCode.InternalServerError, "Error Inserting new Application in our database");
+                }
+                _context.SaveChanges();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
         [HttpPut]
         [Route("somiod")]
-        public IHttpActionResult PutApplication([FromBody] XmlElement data)
+        public IHttpActionResult PutApplication([FromBody] XmlElement application)
         {
-            if (data == null) { return BadRequest(); }
-
-            var dbApp = new Application()
+            try
             {
-                Id = int.Parse(data.SelectSingleNode("/application/@ID")?.InnerText),
-                Name = data.SelectSingleNode("/application/@NAME")?.InnerText,
-                CreatedDate = DateTime.Parse(data.SelectSingleNode("/application/@CREATEDDATE")?.InnerText)
-            };
+                if (application is null || application.Attributes?.Count < 1)
+                {
+                    return BadRequest("Form sent is empty");
+                }
 
-            var entity = _context.Applications.Add(dbApp);
-            if (entity is null) return Content(HttpStatusCode.InternalServerError, "Error Updating Application");
-            _context.SaveChanges();
+                if (string.IsNullOrEmpty(application.Attributes[1].Value) ||
+                    !Shared.IsDateCreatedCorrect(DateTime.Parse(application.Attributes[2].Value)))
+                {
+                    return BadRequest("Input form is not correct, please make sure all fields are filled correctly before updating a application");
+                }
 
-            return Ok();
+                var app = new Application()
+                {
+                    Id = Int32.Parse(application.Attributes[0]?.Value),
+                    Name = application.Attributes[1]?.Value,
+                    CreatedDate = DateTime.Parse(application.Attributes[2]?.Value)
+                };
+
+                if (!Shared.DoesApplicationExist(_context, app.Name))
+                {
+                    return NotFound();
+                }
+
+                var dbApp = _context.Applications.SingleOrDefault(x => x.Id == app.Id);
+                if (dbApp is null)
+                {
+                    return Content(HttpStatusCode.InternalServerError, "Error updating application in our database");
+                }
+
+                dbApp.Name = app.Name;
+                dbApp.CreatedDate = app.CreatedDate;
+
+                _context.SaveChanges();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
         [HttpDelete]
-        [Route("somiod/{applicationId}")]
-        public IHttpActionResult DeleteApplication(string applicationId)
+        [Route("somiod/{applicationName}")]
+        public IHttpActionResult DeleteApplication(string applicationName)
         {
-            if (String.IsNullOrEmpty(applicationId)) { return BadRequest(); }
-
-            var entity = _context.Applications.FirstOrDefault(x => x.Id == Int32.Parse(applicationId));
-            
-            if(entity is null)
+            try
             {
-                return NotFound();
+                if (Shared.AreArgsEmpty(new List<string> { applicationName})) 
+                {
+                    return BadRequest("Input form had empty field/s, please fill all mandatory fields");
+                }
+
+                var entity = _context.Applications.FirstOrDefault(x => string.Equals(x.Name, applicationName));
+
+                if (entity is null)
+                {
+                    return NotFound();
+                }
+
+                var entityRemoved = _context.Applications.Remove(entity);
+                if (entityRemoved is null)
+                {
+                    return Content(HttpStatusCode.InternalServerError, "Error Deleting Application");
+                }
+
+                _context.SaveChanges();
+                return Ok();
             }
-
-            var entityRemoved = _context.Applications.Remove(entity);
-            if (entityRemoved is null) return Content(HttpStatusCode.InternalServerError, "Error Deleting Application");
-            _context.SaveChanges();
-
-            return Ok();
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
     }
 }

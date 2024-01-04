@@ -54,7 +54,7 @@ namespace SOMIOD.Controllers
                 return BadRequest();
             }
 
-            Models.Data dbData = new Models.Data();
+            Library.Models.Data dbData = new Library.Models.Data();
 
 
             //// SomiodDBContext _context = new SomiodDBContext(LocalBDConnectionString);
