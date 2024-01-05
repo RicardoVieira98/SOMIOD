@@ -171,8 +171,7 @@ namespace SOMIOD.Controllers
                     return Content(HttpStatusCode.Conflict, "Container parent does not exist or is not associated");
                 }
 
-                if (string.IsNullOrEmpty(subscription.Attributes["name"]?.Value) ||
-                    !Shared.IsDateCreatedCorrect(DateTime.Parse(subscription.Attributes["createddate"]?.Value)) ||
+                if (!Shared.IsDateCreatedCorrect(DateTime.Parse(subscription.Attributes["createddate"]?.Value)) ||
                     !Enum.IsDefined(typeof(Events), subscription.Attributes["event"]?.Value) ||
                     string.IsNullOrEmpty(subscription.Attributes["endpoint"]?.Value))
                 {
@@ -181,7 +180,7 @@ namespace SOMIOD.Controllers
 
                 var sub = new Subscription()
                 {
-                    Name = subscription.Attributes["name"]?.Value,
+                    Name = Shared.FillResourceName(subscription),
                     CreatedDate = DateTime.Parse(subscription.Attributes["createddate"]?.Value),
                     Event = subscription.Attributes["event"]?.Value,
                     Endpoint = subscription.Attributes["endpoint"]?.Value,

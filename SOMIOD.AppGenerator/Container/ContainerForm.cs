@@ -20,26 +20,26 @@ namespace SOMIOD.AppGenerator.Container
         {
             InitializeComponent();
             client = WebClient.CreateHttpClient();
-            applications.DataSource = Shared.GetAllApplicationNames(client);
+            applications.DataSource = ApiCaller.GetAllApplicationNames(client);
         }
 
         //Get Applications
         private void button6_Click(object sender, EventArgs e)
         {
-            applications.DataSource = Shared.GetAllApplicationNames(client);
+            applications.DataSource = ApiCaller.GetAllApplicationNames(client);
         }
 
         //Get Containers
         private void button1_Click(object sender, EventArgs e)
         {
-            containers.DataSource = Shared.GetAllContainersNames(client);
+            containers.DataSource = ApiCaller.GetAllContainersNames(client);
         }
 
         //Fill Containers by Application
         private void applications_SelectedIndexChanged(object sender, EventArgs e)
         {
             ApplicationSelected = applications.SelectedItem as string;
-            containers.DataSource = Shared.GetAllContainersNamesFromApplication(client, ApplicationSelected);
+            containers.DataSource = ApiCaller.GetAllContainersNamesFromApplication(client, ApplicationSelected);
         }
 
         private void containers_SelectedIndexChanged(object sender, EventArgs e)
@@ -52,13 +52,15 @@ namespace SOMIOD.AppGenerator.Container
         {
             CreateContainerForm createContainerForm = new CreateContainerForm(true, ApplicationSelected, null);
             createContainerForm.ShowDialog();
+            containers.DataSource = ApiCaller.GetAllContainersNamesFromApplication(client, ApplicationSelected);
         }
 
         //Update
         private void button3_Click(object sender, EventArgs e)
         {
-            CreateContainerForm createContainerForm = new CreateContainerForm(false, ApplicationSelected, Shared.GetContainer(client, ApplicationSelected, ContainerSelected));
+            CreateContainerForm createContainerForm = new CreateContainerForm(false, ApplicationSelected, ApiCaller.GetContainer(client, ApplicationSelected, ContainerSelected));
             createContainerForm.ShowDialog();
+            containers.DataSource = ApiCaller.GetAllContainersNamesFromApplication(client, ApplicationSelected);
         }
 
         //Delete
@@ -80,7 +82,7 @@ namespace SOMIOD.AppGenerator.Container
 
         private bool DeleteContainer()
         {
-            var res = Shared.DeleteContainer(client, ApplicationSelected, ContainerSelected);
+            var res = ApiCaller.DeleteContainer(client, ApplicationSelected, ContainerSelected);
             if (res)
             {
                 containers.DataSource = ((List<string>)containers.DataSource).FindAll(x => !String.Equals(x, ContainerSelected));

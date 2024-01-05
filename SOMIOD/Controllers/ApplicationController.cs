@@ -20,7 +20,7 @@ namespace SOMIOD.Controllers
             _context = new SomiodDBContext();
         }
 
-        [HttpGet]   
+        [HttpGet]
         [Route("{applicationName}")]
         public IHttpActionResult GetApplication(string applicationName)
         {
@@ -94,15 +94,14 @@ namespace SOMIOD.Controllers
                     return BadRequest("Form sent is empty");
                 }
 
-                if (string.IsNullOrEmpty(application.Attributes["name"]?.Value) ||
-                    !Shared.IsDateCreatedCorrect(DateTime.Parse(application.Attributes["createddate"]?.Value)))
+                if (!Shared.IsDateCreatedCorrect(DateTime.Parse(application.Attributes["createddate"]?.Value)))
                 {
                     return BadRequest("Input form is not correct, please make sure all fields are filled correctly before updating a application");
                 }
 
                 var newApp = new Application()
                 {
-                    Name = application.Attributes["name"]?.Value,
+                    Name = Shared.FillResourceName(application),
                     CreatedDate = DateTime.Parse(application.Attributes["createddate"]?.Value)
                 };
 
@@ -191,6 +190,11 @@ namespace SOMIOD.Controllers
                     return NotFound();
                 }
 
+                if(IsApplicationAParent(entity))
+                {
+                    return Content(HttpStatusCode.Conflict, "Application you are trying to delete has containers as children, delete the containers first");
+                }
+
                 var entityRemoved = _context.Applications.Remove(entity);
                 if (entityRemoved is null)
                 {
@@ -204,6 +208,11 @@ namespace SOMIOD.Controllers
             {
                 return Content(HttpStatusCode.InternalServerError, ex.Message);
             }
+        }
+
+        private bool IsApplicationAParent(Application application)
+        {
+            return _context.Containers.Any(x => x.Parent == application.Id);
         }
     }
 }

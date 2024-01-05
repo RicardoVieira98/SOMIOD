@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApiCaller.cs" />
     <Compile Include="Application\ApplicationForm.cs">
       <SubType>Form</SubType>
     </Compile>

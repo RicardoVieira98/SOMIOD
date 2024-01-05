@@ -17,7 +17,7 @@ namespace SOMIOD.AppGenerator
         //Get
         private void button1_Click(object sender, EventArgs e)
         {
-            applications.DataSource = Shared.GetAllApplicationNames(client);
+            applications.DataSource = ApiCaller.GetAllApplicationNames(client);
         }
 
         //Create
@@ -25,14 +25,16 @@ namespace SOMIOD.AppGenerator
         {
             CreateApplicationForm createApplicationForm = new CreateApplicationForm(true,null);
             createApplicationForm.ShowDialog();
+            applications.DataSource = ApiCaller.GetAllApplicationNames(client);
         }
 
         //Update
         private void button2_Click(object sender, EventArgs e)
         {
             var applicationName = applications.SelectedItem?.ToString();
-            CreateApplicationForm createApplicationForm = new CreateApplicationForm(false, Shared.GetApplication(client,applicationName));
+            CreateApplicationForm createApplicationForm = new CreateApplicationForm(false, ApiCaller.GetApplication(client,applicationName));
             createApplicationForm.ShowDialog();
+            applications.DataSource = ApiCaller.GetAllApplicationNames(client);
         }
 
         //Delete
@@ -55,7 +57,7 @@ namespace SOMIOD.AppGenerator
         private bool DeleteApplication()
         {
             string applicationName = applications.SelectedItem?.ToString();
-            var res = Shared.DeleteApplication(client,applicationName);
+            var res = ApiCaller.DeleteApplication(client,applicationName);
             if (res)
             {
                 applications.DataSource = ((List<string>)applications.DataSource).FindAll(x => !String.Equals(x, applicationName));

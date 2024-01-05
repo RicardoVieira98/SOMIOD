@@ -109,7 +109,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBox1);
             this.Name = "CreateApplicationForm";
-            this.Text = "CreateApplicationForm";
+            this.Text = "Application";
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -109,7 +109,7 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.dateTimePicker1);
             this.Name = "CreateContainerForm";
-            this.Text = "CreateContainerForm";
+            this.Text = "Container";
             this.ResumeLayout(false);
             this.PerformLayout();
 

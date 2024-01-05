@@ -17,7 +17,7 @@ namespace SOMIOD.AppGenerator
         {
             InitializeComponent();
             httpClient = WebClient.CreateHttpClient();
-            applications.DataSource = Shared.GetAllApplicationNames(httpClient);
+            applications.DataSource = ApiCaller.GetAllApplicationNames(httpClient);
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -30,20 +30,20 @@ namespace SOMIOD.AppGenerator
         {
             ApplicationName = applications.SelectedItem as string;
 
-            containers.DataSource = Shared.GetAllContainersNamesFromApplication(httpClient, ApplicationName);
+            containers.DataSource = ApiCaller.GetAllContainersNamesFromApplication(httpClient, ApplicationName);
         }
 
         //Fill Subscriptions with Container
         private void containers_SelectedIndexChanged(object sender, EventArgs e)
         {
             ContainerName = containers.SelectedItem as string;
-            subscriptions.DataSource = Shared.GetAllSubscriptionNamesFromContainer(httpClient, ApplicationName, ContainerName);
+            subscriptions.DataSource = ApiCaller.GetAllSubscriptionNamesFromContainer(httpClient, ApplicationName, ContainerName);
         }
 
         //Get All Subscriptions
         private void button1_Click(object sender, EventArgs e)
         {
-            allSubs.DataSource = Shared.GetAllSubscriptionNames(httpClient);
+            allSubs.DataSource = ApiCaller.GetAllSubscriptionNames(httpClient);
         }
 
         //Create Subscription
@@ -51,6 +51,8 @@ namespace SOMIOD.AppGenerator
         {
             CreateSubscriptionForm form = new CreateSubscriptionForm(ApplicationName,ContainerName);
             form.ShowDialog();
+            subscriptions.DataSource = ApiCaller.GetAllSubscriptionNamesFromContainer(httpClient, ApplicationName, ContainerName);
+            allSubs.DataSource = ApiCaller.GetAllSubscriptionNames(httpClient);
         }
 
         //Delete Subscription
@@ -74,7 +76,7 @@ namespace SOMIOD.AppGenerator
         {
             string subscriptionName = subscriptions.SelectedItem.ToString();
 
-            var res = Shared.DeleteSubscription(httpClient, ApplicationName, ContainerName, subscriptionName);
+            var res = ApiCaller.DeleteSubscription(httpClient, ApplicationName, ContainerName, subscriptionName);
             if (res)
             {
                 subscriptions.DataSource = ((List<string>)subscriptions.DataSource).FindAll(x => !String.Equals(x, subscriptionName));

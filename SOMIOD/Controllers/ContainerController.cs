@@ -152,15 +152,14 @@ namespace SOMIOD.Controllers
                     return BadRequest("Application parent does not exist");
                 }
 
-                if (string.IsNullOrEmpty(container.Attributes["name"]?.Value) ||
-                    !Shared.IsDateCreatedCorrect(DateTime.Parse(container.Attributes["createddate"]?.Value)))
+                if (!Shared.IsDateCreatedCorrect(DateTime.Parse(container.Attributes["createddate"]?.Value)))
                 {
                     return BadRequest("Input form is not correct, please make sure all fields are filled correctly before inserting a container");
                 }
 
                 var newCon = new Container()
                 {
-                    Name = container.Attributes["name"]?.Value,
+                    Name = Shared.FillResourceName(container),
                     CreatedDate = DateTime.Parse(container.Attributes["createddate"]?.Value),
                     Parent = _context.Applications.FirstOrDefault(x => x.Name == applicationParentName).Id,
                 };
@@ -268,6 +267,11 @@ namespace SOMIOD.Controllers
 
                 var dbSub = _context.Containers.SingleOrDefault(x => string.Equals(x.Name, containerName));
 
+                if(IsContainerAParent(dbSub))
+                {
+                    return Content(HttpStatusCode.Conflict, "Container you are trying to delete has datas or subscriptions as children, delete the children first");
+                }
+
                 var entity = _context.Containers.Remove(dbSub);
                 if (entity is null)
                 {
@@ -283,6 +287,10 @@ namespace SOMIOD.Controllers
             }
         }
 
-
+        private bool IsContainerAParent(Container container)
+        {
+            return _context.Subscriptions.Any(x => x.Parent == container.Id) &&
+                    _context.Datas.Any(y => y.Parent == container.Id);
+        }
     }
 }
