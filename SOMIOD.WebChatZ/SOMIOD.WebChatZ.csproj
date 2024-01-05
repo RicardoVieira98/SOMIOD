@@ -46,6 +46,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Chats.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Chats.Designer.cs">
+      <DependentUpon>Chats.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CreateChat.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CreateChat.Designer.cs">
+      <DependentUpon>CreateChat.cs</DependentUpon>
+    </Compile>
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -54,6 +66,15 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Chats.resx">
+      <DependentUpon>Chats.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CreateChat.resx">
+      <DependentUpon>CreateChat.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main.resx">
+      <DependentUpon>Main.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -75,6 +96,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SOMIOD.AppGenerator\SOMIOD.AppGenerator.csproj">
+      <Project>{c7527749-940d-43c7-982c-3124bf5f67a0}</Project>
+      <Name>SOMIOD.AppGenerator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SOMIOD.Library\SOMIOD.Library.csproj">
+      <Project>{4df718cf-c907-48d4-92ec-d86195762b95}</Project>
+      <Name>SOMIOD.Library</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
