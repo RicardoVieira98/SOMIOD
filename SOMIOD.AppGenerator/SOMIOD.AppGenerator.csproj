@@ -62,11 +62,23 @@
     <Compile Include="CreateApplicationForm.Designer.cs">
       <DependentUpon>CreateApplicationForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="CreateDataForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CreateDataForm.Designer.cs">
+      <DependentUpon>CreateDataForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="CreateSubscriptionForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="CreateSubscriptionForm.Designer.cs">
       <DependentUpon>CreateSubscriptionForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DataForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DataForm.Designer.cs">
+      <DependentUpon>DataForm.cs</DependentUpon>
     </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -90,8 +102,14 @@
     <EmbeddedResource Include="CreateApplicationForm.resx">
       <DependentUpon>CreateApplicationForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="CreateDataForm.resx">
+      <DependentUpon>CreateDataForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="CreateSubscriptionForm.resx">
       <DependentUpon>CreateSubscriptionForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DataForm.resx">
+      <DependentUpon>DataForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>

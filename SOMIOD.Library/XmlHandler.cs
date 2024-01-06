@@ -130,6 +130,14 @@ namespace SOMIOD.Library
             }
             return doc.OuterXml;
         }
+        public static string GetDataXml(Data data)
+        {
+            XmlDocument doc = new XmlDocument();
+
+            XmlElement element = SetDataXmlSection(data, doc);
+            doc.AppendChild(element);
+            return doc.OuterXml;
+        }
 
         private static XmlElement SetApplicationXmlSection(Application app, XmlDocument doc)
         {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Ajax.Utilities;
 using SOMIOD.Data;
+using SOMIOD.Library;
 using SOMIOD.Models;
 using System;
 using System.Collections.Generic;
@@ -120,7 +121,7 @@ namespace SOMIOD.Controllers
             {
                 return BadRequest();
             }
-            Models.Data dbData = new Models.Data();
+            Library.Models.Data dbData = new Library.Models.Data();
 
             //application
             var App = _context.Applications.FirstOrDefault(x => x.Id == application);
@@ -146,4 +147,5 @@ namespace SOMIOD.Controllers
             return Ok();
         }
     }
+
 }
