@@ -125,6 +125,8 @@
   <ItemGroup>
     <Build Include="dbo\Tables\Application.sql" />
     <Build Include="Security\Permissions.sql" />
-    <Build Include="dbo\Tables\Subscriptions.sql" />
+    <Build Include="dbo\Tables\Container.sql" />
+    <Build Include="dbo\Tables\Subscription.sql" />
+    <Build Include="SomiodDatabase.sql" />
   </ItemGroup>
 </Project>

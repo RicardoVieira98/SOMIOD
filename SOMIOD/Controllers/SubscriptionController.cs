@@ -9,6 +9,7 @@ using System.Text;
 using System.Web.Http;
 using System.Xml;
 using uPLibrary.Networking.M2Mqtt;
+using uPLibrary.Networking.M2Mqtt.Messages;
 
 namespace SOMIOD.Controllers
 {
@@ -61,7 +62,7 @@ namespace SOMIOD.Controllers
 
         [HttpGet]
         [Route("{applicationName}/{containerName}/sub")]
-        public IHttpActionResult GetSubscriptionsByContainer(string applicationName,string containerName)
+        public IHttpActionResult GetSubscriptionsByContainer(string applicationName, string containerName)
         {
             try
             {
@@ -70,7 +71,7 @@ namespace SOMIOD.Controllers
                     return BadRequest("Input form had empty field/s, please fill all mandatory fields");
                 }
 
-                if (!Shared.DoesApplicationExist(_context,applicationName) || 
+                if (!Shared.DoesApplicationExist(_context, applicationName) ||
                     !Shared.DoesContainerExist(_context, containerName))
                 {
                     return BadRequest("Application or container sent do not exist on our database");
@@ -83,7 +84,7 @@ namespace SOMIOD.Controllers
                     return BadRequest("Header was not found or incorrect, please make sure you are sending a correct header with the operation-type necessary");
                 }
 
-                var conId = _context.Containers.SingleOrDefault(x => string.Equals(x.Name,containerName))?.Id;
+                var conId = _context.Containers.SingleOrDefault(x => string.Equals(x.Name, containerName))?.Id;
 
                 var subs = _context.Subscriptions.Where(x => x.Parent == conId).ToList();
 
@@ -142,7 +143,8 @@ namespace SOMIOD.Controllers
 
         [HttpPost]
         [Route("{applicationName}/{containerName}/sub")]
-        public IHttpActionResult PostSubscription(string applicationName, string containerName, [FromBody]XmlElement subscription)  
+        [Obsolete]
+        public IHttpActionResult PostSubscription(string applicationName, string containerName, [FromBody] XmlElement subscription)
         {
             try
             {
@@ -166,7 +168,7 @@ namespace SOMIOD.Controllers
                     return BadRequest("Container parent does not exist");
                 }
 
-                if(!Shared.IsContainerConnected(_context,applicationName,_context.Containers.FirstOrDefault(x => string.Equals(x.Name, containerName))))
+                if (!Shared.IsContainerConnected(_context, applicationName, _context.Containers.FirstOrDefault(x => string.Equals(x.Name, containerName))))
                 {
                     return Content(HttpStatusCode.Conflict, "Container parent does not exist or is not associated");
                 }
@@ -178,25 +180,33 @@ namespace SOMIOD.Controllers
                     return BadRequest("Input form is not correct, please make sure all fields are correct before creating a new subscription");
                 }
 
+                if (DoesSubscriptionExist(subscription.Attributes["name"]?.Value))
+                {
+                    return Content(HttpStatusCode.Conflict, "Subscription already exists");
+                }
+
                 var sub = new Subscription()
                 {
                     Name = Shared.FillResourceName(subscription),
                     CreatedDate = DateTime.Parse(subscription.Attributes["createddate"]?.Value),
-                    Event = subscription.Attributes["event"]?.Value,
+                    Event = (Events)Enum.Parse(typeof(Events),subscription.Attributes["event"]?.Value),
                     Endpoint = subscription.Attributes["endpoint"]?.Value,
-                    Parent = _context.Containers.FirstOrDefault(x => string.Equals(x.Name,containerName)).Id,
+                    Parent = _context.Containers.FirstOrDefault(x => string.Equals(x.Name, containerName)).Id,
                 };
-
-                if (DoesSubscriptionExist(sub.Name))
-                {
-                    return Content(HttpStatusCode.Conflict, "Subscription already exists");
-                }
 
                 var entity = _context.Subscriptions.Add(sub);
                 if (entity is null)
                 {
                     return Content(HttpStatusCode.InternalServerError, "Error Inserting new subscription into database");
                 }
+
+                bool success = MessageBroker.CallMessageBroker(sub.Name,sub.Endpoint,sub.Event);
+                
+                if(!success)
+                {
+                    return Content(HttpStatusCode.InternalServerError, "Error calling MessageBroker");
+                }
+                
                 _context.SaveChanges();
                 return Ok();
 
@@ -209,7 +219,8 @@ namespace SOMIOD.Controllers
 
         [HttpDelete]
         [Route("{applicationName}/{containerName}/sub/{subscriptionName}")]
-        public IHttpActionResult DeleteSubscription(string applicationName,string containerName, string subscriptionName)
+        [Obsolete]
+        public IHttpActionResult DeleteSubscription(string applicationName, string containerName, string subscriptionName)
         {
             try
             {
@@ -218,7 +229,7 @@ namespace SOMIOD.Controllers
                     return BadRequest("Input form had empty field/s, please fill all mandatory fields");
                 }
 
-                if(!Shared.DoesApplicationExist(_context, applicationName) ||
+                if (!Shared.DoesApplicationExist(_context, applicationName) ||
                     !Shared.DoesContainerExist(_context, containerName))
                 {
                     return Content(HttpStatusCode.Conflict, "Subscription parent you are trying to delete does not exists, or the containers parent's does not exist, please insert a subscription with an existing container associated and the container associated with an existing application");
@@ -236,6 +247,9 @@ namespace SOMIOD.Controllers
                 {
                     return Content(HttpStatusCode.InternalServerError, "Error deleting subscription");
                 }
+
+                var success = MessageBroker.CallMessageBroker(dbSub.Name, dbSub.Endpoint, dbSub.Event);
+
                 _context.SaveChanges();
                 return Ok();
 
@@ -249,44 +263,6 @@ namespace SOMIOD.Controllers
         private bool DoesSubscriptionExist(string subscriptionName)
         {
             return _context.Subscriptions.Any(x => String.Equals(x.Name, subscriptionName));
-        }
-
-        [Obsolete]
-        private void CallMessageBroker()
-        {
-//            MqttClient mClient = new MqttClient(IPAddress.Parse("127.0.0.1"));
-
-//            string[] mStrTopicsInfo = { "news", "complaints" };
-
-//            mClient.Connect(Guid.NewGuid().ToString());
-
-//            if (!mClient.IsConnected)
-//            {
-//                MessageBox.Show("Error connecting to message broker...");
-//                return;
-//            }
-//            mClient.MqttMsgPublishReceived += client_MqttMsgPublishReceived;
-//            byte[] qosLevels = { MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE,
-//MqttMsgBase.QOS_LEVEL_EXACTLY_ONCE};//QoS
-//            mClient.Subscribe(mStrTopicsInfo, qosLevels);
-
-
-
-            MqttClient mcClient = new MqttClient(IPAddress.Parse("1883"));
-            string[] mStrTopicsInfo = { "news", "complaints" };
-            mcClient.Connect(Guid.NewGuid().ToString());
-            if (!mcClient.IsConnected)
-            {
-
-            }
-
-            mcClient.Publish("news", Encoding.UTF8.GetBytes("Hello World!"));
-            if (mcClient.IsConnected)
-            {
-                mcClient.Unsubscribe(mStrTopicsInfo); //Put this in a button to see notify!
-                mcClient.Disconnect(); //Free process and process's resources
-            }
-
         }
     }
 }

@@ -179,7 +179,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Container\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

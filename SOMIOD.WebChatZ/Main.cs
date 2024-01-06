@@ -27,12 +27,18 @@ namespace SOMIOD.WebChatZ
         }
 
         private void button1_Click(object sender, EventArgs e)
-        {
-            this.Close();
-            
+        {            
             string selectedPersonName = comboBox1.SelectedItem.ToString();
             Chats chats = new Chats(selectedPersonName);
             chats.ShowDialog();
+        }
+
+        //Register
+        private void button2_Click(object sender, EventArgs e)
+        {
+            CreateUser createUser = new CreateUser();
+            createUser.ShowDialog();
+            comboBox1.DataSource = ApiCaller.GetAllApplicationNames(client);
         }
     }
 }

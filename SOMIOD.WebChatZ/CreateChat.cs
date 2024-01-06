@@ -39,7 +39,7 @@ namespace SOMIOD.WebChatZ
         //Create Chat
         private void button1_Click(object sender, EventArgs e)
         {
-            ChatName = UserName + "-" + comboBox1.SelectedIndex;
+            ChatName = UserName + "-" + comboBox1.SelectedItem.ToString();
 
             Container newChat = new Container()
             {
@@ -51,7 +51,7 @@ namespace SOMIOD.WebChatZ
             string request = XmlHandler.GetContainerXml(newChat);
             HttpContent content = new StringContent(request, Encoding.UTF8, "application/xml");
 
-            var response = client.PostAsync(client.BaseAddress, content);
+            var response = client.PostAsync(client.BaseAddress + "/" + UserName + "/insert", content);
             if (response.Result.StatusCode != HttpStatusCode.OK)
             {
                 Shared.ShowError(response.Result);
@@ -59,6 +59,8 @@ namespace SOMIOD.WebChatZ
             }
 
             Shared.ShowMessage("Chat created successfully", "Chat created", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            //CREATE SUBSCRIPTION! NAME, EVENT, ENDPOINT
 
             this.Close();
         }

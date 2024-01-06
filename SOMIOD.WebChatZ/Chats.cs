@@ -27,10 +27,13 @@ namespace SOMIOD.WebChatZ
         {
             var chats = ApiCaller.GetAllContainersNamesFromApplication(client, UserName);
 
-            if(chats.Count is 0)
+            if(chats is null || chats.Count is 0)
             {
+                chats = new List<string>();
+                Shared.ShowMessage("You have no chats created, lets create one!","No chatrooms", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 CreateChat createChat = new CreateChat(UserName);
                 createChat.ShowDialog();
+                if (string.IsNullOrEmpty(createChat.ChatName)) return;
                 chats.Add(createChat.ChatName);
             }
             comboBox1.DataSource = chats;
@@ -43,6 +46,8 @@ namespace SOMIOD.WebChatZ
             //show in certain way.
             //retrieve all data ('messages') of the other user HOW? : using Second part of Chat, retrieve the application then by reversing chat name order, retrieving the messages
             //wich message has a createddate, use that to sort the messages correctly.
+            ChatRoom chatRoom = new ChatRoom(UserName,"");
+            chatRoom.ShowDialog();
         }
     }
 }

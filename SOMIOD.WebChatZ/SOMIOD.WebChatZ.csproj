@@ -46,6 +46,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChatRoom.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ChatRoom.Designer.cs">
+      <DependentUpon>ChatRoom.cs</DependentUpon>
+    </Compile>
     <Compile Include="Chats.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -58,6 +64,12 @@
     <Compile Include="CreateChat.Designer.cs">
       <DependentUpon>CreateChat.cs</DependentUpon>
     </Compile>
+    <Compile Include="CreateUser.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CreateUser.Designer.cs">
+      <DependentUpon>CreateUser.cs</DependentUpon>
+    </Compile>
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -66,11 +78,17 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="ChatRoom.resx">
+      <DependentUpon>ChatRoom.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Chats.resx">
       <DependentUpon>Chats.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="CreateChat.resx">
       <DependentUpon>CreateChat.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CreateUser.resx">
+      <DependentUpon>CreateUser.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>

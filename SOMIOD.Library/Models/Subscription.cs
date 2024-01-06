@@ -16,7 +16,7 @@ namespace SOMIOD.Library.Models
         public string Name { get; set; }
         public DateTime CreatedDate { get; set; }
         public int Parent { get; set; }
-        public string Event {  get; set; }
+        public Events Event {  get; set; }
         public string Endpoint {  get; set; }
     }
 }
