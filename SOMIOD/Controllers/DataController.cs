@@ -1,5 +1,4 @@
 ﻿using SOMIOD.Data;
-using SOMIOD.Library.Models;
 using SOMIOD.Library;
 using System;
 using System.Collections.Generic;
@@ -9,8 +8,6 @@ using System.Text;
 using System.Web.Http;
 using System.Xml;
 using uPLibrary.Networking.M2Mqtt;
-using Data = SOMIOD.Library.Models.Data;
-using System.Security.Cryptography;
 
 namespace SOMIOD.Controllers
 {

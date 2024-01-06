@@ -110,7 +110,6 @@ namespace SOMIOD.Library
             return doc.OuterXml;
         }
 
-
         public static string OnlySubscriptionsXml(List<Subscription> subscriptions)
         {
             XmlDocument doc = new XmlDocument();
@@ -133,7 +132,6 @@ namespace SOMIOD.Library
             doc.AppendChild(element);
             return doc.OuterXml;
         }
-
 
         public static string OnlyDataXml(List<Data> datas)
         {
@@ -184,7 +182,7 @@ namespace SOMIOD.Library
             subscriptionElement.SetAttribute("name", subscription?.Name);
             subscriptionElement.SetAttribute("createddate", subscription?.CreatedDate.ToString());
             subscriptionElement.SetAttribute("parent", subscription?.Parent.ToString());
-            subscriptionElement.SetAttribute("event", subscription?.Event);
+            subscriptionElement.SetAttribute("event", subscription?.Event.ToString());
             subscriptionElement.SetAttribute("endpoint", subscription.Endpoint);
 
             return subscriptionElement;

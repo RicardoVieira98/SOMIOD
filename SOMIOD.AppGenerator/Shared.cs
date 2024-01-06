@@ -12,6 +12,7 @@ using System.Net;
 using System.Windows.Forms;
 using Application = SOMIOD.Library.Models.Application;
 using Container = SOMIOD.Library.Models.Container;
+using SOMIOD.Library;
 
 namespace SOMIOD.AppGenerator
 {
@@ -94,7 +95,7 @@ namespace SOMIOD.AppGenerator
                         sub.Name = grandChildNode.Attributes["name"]?.Value;
                         sub.CreatedDate = DateTime.Parse(grandChildNode.Attributes["createddate"]?.Value);
                         sub.Parent = Int32.Parse(grandChildNode.Attributes["parent"]?.Value);
-                        sub.Event = grandChildNode.Attributes["event"]?.Value;
+                        sub.Event = (Events)Enum.Parse(typeof(Events), grandChildNode.Attributes["event"]?.Value);
                         sub.Endpoint = grandChildNode.Attributes["endpoint"]?.Value;
                     }
                 }

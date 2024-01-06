@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
 
@@ -16,7 +13,7 @@ namespace SOMIOD.Library
         {
             MqttClient mcClient = new MqttClient(IPAddress.Parse(endpoint));
             string[] topics = { subscriptionName };
-            string clientId = Guid.NewGuid().ToString(); //save this client id in appsettings
+            string clientId = Guid.NewGuid().ToString();
             mcClient.Connect(clientId);
 
             switch (subscriptionEvent)
@@ -28,11 +25,6 @@ namespace SOMIOD.Library
                 default:
                     return false;
             }
-        }
-
-        static void client_MqttMsgPublishReceived(object sender, MqttMsgPublishEventArgs e)
-        {
-            Console.WriteLine("Received = " + Encoding.UTF8.GetString(e.Message) + " on topic " + e.Topic);
         }
 
         static bool Subscribe(MqttClient mcClient, string[] topics)

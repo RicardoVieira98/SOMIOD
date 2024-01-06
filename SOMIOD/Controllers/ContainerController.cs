@@ -1,9 +1,7 @@
 ﻿using SOMIOD.Data;
 using SOMIOD.Library;
-using SOMIOD.Library.Models;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Web.Http;

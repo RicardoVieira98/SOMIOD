@@ -57,7 +57,7 @@ namespace SOMIOD.AppGenerator
                 Name = textBox1.Text,
                 CreatedDate = dateTimePicker1.Value,
                 Endpoint = textBox2.Text,
-                Event = events
+                Event = (Events)Enum.Parse(typeof(Events),events)
             };
 
             string request = XmlHandler.GetSubscriptionXml(subscription);

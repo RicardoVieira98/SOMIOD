@@ -3,8 +3,6 @@ using SOMIOD.Library.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static System.Net.Mime.MediaTypeNames;
-using System.Xml.Linq;
 using System.Xml;
 
 namespace SOMIOD
@@ -64,7 +62,6 @@ namespace SOMIOD
         {
             int? appId = context.Applications.FirstOrDefault(x => string.Equals(x.Name, applicationName))?.Id;
             return context.Containers.Any(x => x.Id == container.Id && x.Parent == appId.Value);
-
         }
     }
 }
